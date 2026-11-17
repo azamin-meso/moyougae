@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>模様替えシミュレーター</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;font-family:"Meiryo","Hiragino Sans","Yu Gothic UI",sans-serif;font-size:14px;color:#222;background:#eef0f3}
+body{display:flex;flex-direction:column}
+header{display:flex;align-items:center;gap:6px;padding:6px 10px;background:#2f3e4e;color:#fff;flex-wrap:wrap}
+header h1{font-size:16px;margin:0 12px 0 0;font-weight:bold}
+header .sp{flex:1}
+#saved{font-size:12px;opacity:.75}
+button{font:inherit;padding:4px 10px;border:1px solid #9aa5b1;background:#fff;border-radius:4px;cursor:pointer}
+button:hover{background:#e8f0fb}
+header button{background:#435568;color:#fff;border-color:#62788f}
+header button:hover{background:#536a82}
+#tabs{display:flex;gap:2px;padding:6px 10px 0;background:#d5dbe2;flex-wrap:wrap}
+#tabs button{border-radius:6px 6px 0 0;border-bottom:none;background:#c3cbd5}
+#tabs button.on{background:#fff;font-weight:bold}
+#main{flex:1;display:flex;min-height:0}
+#left{flex:1;display:flex;flex-direction:column;min-width:0;background:#fff}
+.bar{display:flex;gap:6px;align-items:center;padding:6px 10px;border-bottom:1px solid #dde2e8;flex-wrap:wrap}
+.bar select{font:inherit;padding:3px}
+.hint{font-size:12px;color:#667}
+#cv{flex:1;width:100%;min-height:0;display:block;background:#f6f7f9;touch-action:none;user-select:none;cursor:grab}
+#cv .mv{cursor:move}
+#cv .hit{cursor:pointer}
+aside{width:310px;overflow:auto;padding:10px 12px;background:#fafbfc;border-left:1px solid #dde2e8}
+aside h3{font-size:14px;margin:14px 0 6px;padding-bottom:3px;border-bottom:2px solid #2f3e4e}
+aside h3:first-child{margin-top:0}
+aside label{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:5px 0;font-size:13px}
+aside input,aside select{font:inherit;width:140px;padding:3px 5px}
+aside input[type=color]{padding:0;height:28px}
+.btns{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.danger{color:#c0392b;border-color:#e0a9a2}
+ul.lst{list-style:none;padding:0;margin:0}
+ul.lst li{padding:4px 6px;border-radius:4px;cursor:pointer;font-size:13px}
+ul.lst li:hover{background:#e8f0fb}
+ul.ng li{color:#b42318}
+.ok{color:#1a7f37;font-size:13px}
+.note{font-size:12px;color:#667;line-height:1.6}
+#cvwrap{position:relative;flex:1;min-height:0;display:flex}
+#pad{position:absolute;right:10px;bottom:10px;display:grid;grid-template-columns:repeat(3,46px);grid-template-rows:repeat(3,46px);gap:4px}
+#pad[hidden]{display:none}
+#pad button{padding:0;font-size:18px;background:rgba(255,255,255,.92);box-shadow:0 1px 3px rgba(0,0,0,.2)}
+#pad .st{font-size:11px}
+#dlg{position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;z-index:10}
+#dlg[hidden]{display:none}
+#dlg .box{background:#fff;border-radius:8px;padding:16px;width:min(92vw,380px);box-shadow:0 6px 24px rgba(0,0,0,.25)}
+#dlg .msg{white-space:pre-wrap;margin-bottom:10px;line-height:1.6}
+#dlg input{width:100%;font-size:16px;padding:6px}
+#dlg .btns{justify-content:flex-end}
+.mhint{display:none}
+@media (max-width:820px){
+  html,body{height:auto;font-size:15px}
+  body{min-height:100%}
+  header{flex-wrap:nowrap;overflow-x:auto;padding:4px 6px;gap:4px}
+  header h1,#saved,.lg{display:none}
+  header .sp{flex:1}
+  #cloud{white-space:nowrap}
+  button{padding:8px 10px;white-space:nowrap;flex:none}
+  .bar{flex-wrap:nowrap;overflow-x:auto;white-space:nowrap;padding:4px 6px}
+  #tabs{flex-wrap:nowrap;overflow-x:auto;padding:4px 6px 0}
+  #main{flex-direction:column}
+  #left{flex:none;height:82vh;height:82svh}
+  aside{width:auto;border-left:none;border-top:1px solid #dde2e8;overflow:visible}
+  aside input,aside select{font-size:16px;width:170px}
+  .bar select{font-size:16px}
+  .phint{display:none}
+  .mhint{display:flex}
+}
+.sw{display:inline-block;width:12px;height:12px;border:1px solid #555;vertical-align:-1px;margin-right:6px}
+</style>
+</head>
+<body>
+<header>
+  <h1>模様替えシミュレーター</h1>
+  <button data-act="undo" title="Ctrl+Z">↶<span class="lg"> 元に戻す</span></button>
+  <button data-act="redo" title="Ctrl+Y">↷<span class="lg"> やり直し</span></button>
+  <button data-act="fit">全体<span class="lg">表示</span></button>
+  <span class="sp"></span>
+  <span id="saved"></span> <span id="cloud" style="font-size:12px;opacity:.75"></span>
+  <button data-act="export"><span class="lg">ファイルに</span>書き出す</button>
+  <button data-act="import"><span class="lg">ファイルを</span>読み込む</button>
+  <input type="file" id="fileIn" accept=".json,application/json" hidden>
+</header>
+<div id="tabs"></div>
+<div id="main">
+  <div id="left">
+    <div class="bar" id="planBar"></div>
+    <div class="bar">
+      <button data-act="addF">＋家具</button>
+      <button data-act="addO">＋障害物<span class="lg">（柱・出っ張り）</span></button>
+      <button data-act="addDoor">＋ドア</button>
+      <button data-act="addWin">＋窓</button>
+      <button data-act="addOut">＋コンセント<span class="lg">・スイッチ</span></button>
+      <button data-act="addCl">＋収納<span class="lg">（クローゼット・押入れ）</span></button>
+    </div>
+    <div id="cvwrap"><svg id="cv" xmlns="http://www.w3.org/2000/svg"></svg>
+      <div id="pad" hidden>
+        <span></span><button data-act="nudge" data-dx="0" data-dy="-1">↑</button><button data-act="padStep" class="st" id="padStep">10mm</button>
+        <button data-act="nudge" data-dx="-1" data-dy="0">←</button><button data-act="rot" id="padRot" title="90°回転">⟳</button><button data-act="nudge" data-dx="1" data-dy="0">→</button>
+        <span></span><button data-act="nudge" data-dx="0" data-dy="1">↓</button><span></span>
+      </div></div>
+    <div class="bar hint mhint">1本指：家具の移動・画面の移動 ／ 2本指：拡大縮小 ／ 右下のボタン：微調整・回転</div>
+    <div class="bar hint phint">ドラッグで移動（10mm単位・壁や家具に吸着）／ ホイールで拡大縮小 ／ 何もない所をドラッグで画面移動 ／ 矢印キー：10mm（Shift：100mm、Alt：1mm）／ R：90°回転 ／ Delete：削除</div>
+  </div>
+  <aside id="panel"></aside>
+</div>
+<div id="dlg" hidden><div class="box"><div class="msg" id="dlgMsg"></div><input id="dlgIn"><div class="btns"><button id="dlgCancel">キャンセル</button><button id="dlgOk">OK</button></div></div></div>
+<script>
+'use strict';
+const KEY='moyougae_v1', T=120; // 壁の表示厚さ(mm)
+const WALLS={top:'上の壁',right:'右の壁',bottom:'下の壁',left:'左の壁'};
+const COLORS=['#c8a27a','#8fb3d9','#a8c98f','#e0b0c0','#d9c27a','#b0a0d0','#9fd0c8','#d99f8f'];
+const svg=document.getElementById('cv'), panel=document.getElementById('panel');
+const uid=()=>Math.random().toString(36).slice(2,10);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const r1=v=>Math.round(v);
+
+/* ---------- データ ---------- */
+function newPlan(name){return {id:uid(),name,furniture:[]}}
+function newRoom(name,w,d){const p=newPlan('案1');return {id:uid(),name,w,d,fixtures:[],plans:[p],planId:p.id}}
+function sample(){
+  const r=newRoom('リビング',3640,4550);
+  r.fixtures.push({id:uid(),type:'door',wall:'bottom',offset:2700,width:780,kind:'hinged',hinge:'end',swing:'in',slide:'start'});
+  r.fixtures.push({id:uid(),type:'window',wall:'top',offset:900,width:1690,sill:900});
+  r.fixtures.push({id:uid(),type:'outlet',wall:'left',offset:1800,kind:'outlet'});
+  r.fixtures.push({id:uid(),type:'obstacle',name:'柱',x:3340,y:0,w:300,d:300});
+  const p=r.plans[0]; p.name='案1：今の配置';
+  p.furniture.push({id:uid(),name:'ソファ',w:1800,d:850,h:800,color:COLORS[0],x:200,y:3500,rot:0});
+  p.furniture.push({id:uid(),name:'テレビ台',w:1500,d:400,h:450,color:COLORS[1],x:0,y:1100,rot:1});
+  return {version:1,rooms:[r],cur:0};
+}
+let S;
+try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){S=null}
+if(!S||!Array.isArray(S.rooms)||!S.rooms.length)S=sample();
+let snap=JSON.stringify(S), hist=[], fut=[];
+let localAt=0;try{localAt=Number(localStorage.getItem(KEY+'_at'))||0}catch(e){}
+const DEV=uid(), CAP={downloads:null,inArtifact:false};
+let cloud=null,cloudBusy=false,cloudDirty=false,cloudTimer=null,pendingRemote=null;
+const setCloud=t=>{document.getElementById('cloud').textContent=t};
+let sel=null, drag=null, V={s:0.1,tx:40,ty:40}, padStep=10;
+
+const room=()=>{if(!(S.cur>=0&&S.cur<S.rooms.length))S.cur=0;return S.rooms[S.cur]};
+const plan=()=>{const r=room();let p=r.plans.find(p=>p.id===r.planId);if(!p){p=r.plans[0];r.planId=p.id}return p};
+function getItem(s){if(!s)return null;return s.k==='f'?plan().furniture.find(f=>f.id===s.id):room().fixtures.find(x=>x.id===s.id)}
+
+function save(){
+  try{localStorage.setItem(KEY,JSON.stringify(S));document.getElementById('saved').textContent='自動保存済み '+new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'})}
+  catch(e){document.getElementById('saved').textContent='自動保存できません（ファイルに書き出してください）'}
+}
+function changed(){save();localAt=Date.now();try{localStorage.setItem(KEY+'_at',String(localAt))}catch(e){}if(cloud){clearTimeout(cloudTimer);cloudTimer=setTimeout(pushCloud,1500)}}
+function commit(){const j=JSON.stringify(S);if(j!==snap){hist.push(snap);if(hist.length>200)hist.shift();fut=[];snap=j;changed()}render()}
+function undo(){if(!hist.length)return;fut.push(snap);snap=hist.pop();S=JSON.parse(snap);changed();if(!getItem(sel))sel=null;render()}
+function redo(){if(!fut.length)return;hist.push(snap);snap=fut.pop();S=JSON.parse(snap);changed();if(!getItem(sel))sel=null;render()}
+
+/* ---------- 画面内ダイアログ ---------- */
+function dialog(msg,input=null,cancel=true){
+  return new Promise(res=>{
+    const d=document.getElementById('dlg'),inp=document.getElementById('dlgIn'),ok=document.getElementById('dlgOk'),cc=document.getElementById('dlgCancel');
+    document.getElementById('dlgMsg').textContent=msg;
+    inp.hidden=input===null;inp.value=input??'';cc.hidden=!cancel;d.hidden=false;
+    if(input!==null)setTimeout(()=>inp.focus(),30);
+    const done=v=>{d.hidden=true;ok.onclick=cc.onclick=inp.onkeydown=null;res(v)};
+    ok.onclick=()=>done(input===null?true:inp.value);
+    cc.onclick=()=>done(input===null?false:null);
+    inp.onkeydown=e=>{if(e.key==='Enter')ok.onclick();if(e.key==='Escape')cc.onclick()};
+  });
+}
+const ask=(m,v)=>dialog(m,v),confirmBox=m=>dialog(m),note=m=>dialog(m,null,false);
+
+/* ---------- クラウド同期（リンクで開いたとき） ---------- */
+async function pushCloud(){
+  if(!cloud)return;if(cloudBusy){cloudDirty=true;return}
+  cloudBusy=true;
+  try{await cloud.set({json:JSON.stringify(S),at:localAt,dev:DEV});setCloud('☁ 同期済み')}
+  catch(e){setCloud('☁ 同期できませんでした（この端末には保存済み）')}
+  cloudBusy=false;if(cloudDirty){cloudDirty=false;pushCloud()}
+}
+function applyRemote(d){
+  if(drag){pendingRemote=d;return}
+  let n;try{n=JSON.parse(d.json)}catch(e){return}
+  if(!n||!Array.isArray(n.rooms)||!n.rooms.length)return;
+  hist.push(snap);fut=[];S=n;snap=JSON.stringify(S);localAt=d.at;save();
+  try{localStorage.setItem(KEY+'_at',String(localAt))}catch(e){}
+  if(!getItem(sel))sel=null;render();setCloud('☁ 他の端末の変更を反映しました');
+}
+async function initCaps(){
+  let tries=0;while(!(window.claude&&typeof window.claude.use==='function')){if(++tries>20)return;await new Promise(r=>setTimeout(r,150))}
+  CAP.inArtifact=true;
+  try{CAP.downloads=await window.claude.use('downloads')}catch(e){}
+  let db=null,user=null;
+  try{db=await window.claude.use('db');user=await window.claude.use('user')}catch(e){}
+  if(!db||!user){setCloud('');return}
+  let id=null;try{id=await user.id()}catch(e){}
+  if(!id)return;
+  try{cloud=db.doc('data/users/'+id+'/state')}catch(e){cloud=null;return}
+  setCloud('☁ 接続中…');
+  const tm=setTimeout(()=>setCloud('☁ つながりません（この端末には保存済み）'),10000);
+  cloud.onSnapshot(sn=>{
+    if(!sn.metadata.fromCache)clearTimeout(tm);
+    if(!sn.exists){if(!sn.metadata.fromCache){if(localAt>0)pushCloud();else setCloud('☁ 同期済み')}return}
+    const d=sn.data()||{};
+    if(d.dev===DEV){return}
+    if(typeof d.at==='number'&&d.at>localAt)applyRemote(d);
+    else if(!sn.metadata.fromCache){if(d.at<localAt)pushCloud();else setCloud('☁ 同期済み')}
+  },()=>{clearTimeout(tm);cloud=null;setCloud('')});
+}
+
+/* ---------- 幾何 ---------- */
+const fp=f=>({x:f.x,y:f.y,w:f.rot?f.d:f.w,h:f.rot?f.w:f.d});
+const ob=o=>({x:o.x,y:o.y,w:o.w,h:o.d});
+const box=(p,q)=>({x:Math.min(p[0],q[0]),y:Math.min(p[1],q[1]),w:Math.abs(q[0]-p[0]),h:Math.abs(q[1]-p[1])});
+const hit=(a,b)=>a.x<b.x+b.w-0.5&&b.x<a.x+a.w-0.5&&a.y<b.y+b.h-0.5&&b.y<a.y+a.h-0.5;
+function WI(r,wall){switch(wall){
+  case 'top':return {ox:0,oy:0,tx:1,ty:0,nx:0,ny:1};
+  case 'bottom':return {ox:0,oy:r.d,tx:1,ty:0,nx:0,ny:-1};
+  case 'left':return {ox:0,oy:0,tx:0,ty:1,nx:1,ny:0};
+  default:return {ox:r.w,oy:0,tx:0,ty:1,nx:-1,ny:0};}}
+function leafs(r,x){
+  const W=WI(r,x.wall),P=o=>[W.ox+W.tx*o,W.oy+W.ty*o];
+  const s=(x.type==='closet'||x.swing!=='out')?1:-1,bx=W.nx*s,by=W.ny*s,L=[];
+  if(x.kind==='hinged'){
+    if(x.hinge==='end'){const [hx,hy]=P(x.offset+x.width);L.push({hx,hy,ax:-W.tx,ay:-W.ty,bx,by,R:x.width})}
+    else{const [hx,hy]=P(x.offset);L.push({hx,hy,ax:W.tx,ay:W.ty,bx,by,R:x.width})}
+  }else if(x.kind==='double'){
+    const R=x.width/2;let [hx,hy]=P(x.offset);L.push({hx,hy,ax:W.tx,ay:W.ty,bx,by,R});
+    [hx,hy]=P(x.offset+x.width);L.push({hx,hy,ax:-W.tx,ay:-W.ty,bx,by,R});
+  }
+  return {L,inside:s===1};
+}
+function leafBox(l){const x2=l.hx+(l.ax+l.bx)*l.R,y2=l.hy+(l.ay+l.by)*l.R;return box([l.hx,l.hy],[x2,y2])}
+function hitLeaf(a,l){
+  const b=leafBox(l),x0=Math.max(a.x,b.x),x1=Math.min(a.x+a.w,b.x+b.w),y0=Math.max(a.y,b.y),y1=Math.min(a.y+a.h,b.y+b.h);
+  if(x1-x0<1||y1-y0<1)return false;
+  const cx=Math.min(Math.max(l.hx,x0),x1),cy=Math.min(Math.max(l.hy,y0),y1);
+  return Math.hypot(cx-l.hx,cy-l.hy)<l.R-1;
+}
+function slideBox(r,x){
+  if(x.kind!=='sliding')return null;
+  const W=WI(r,x.wall),a=x.slide==='end'?x.offset+x.width:x.offset-x.width,b=a+x.width,D=80;
+  return box([W.ox+W.tx*a,W.oy+W.ty*a],[W.ox+W.tx*b+W.nx*D,W.oy+W.ty*b+W.ny*D]);
+}
+function winBox(r,x){const W=WI(r,x.wall),a=x.offset,b=a+x.width;return box([W.ox+W.tx*a,W.oy+W.ty*a],[W.ox+W.tx*b+W.nx*150,W.oy+W.ty*b+W.ny*150])}
+function rects(exceptId){
+  const out=[];
+  plan().furniture.forEach(f=>{if(f.id!==exceptId)out.push({id:f.id,...fp(f)})});
+  room().fixtures.forEach(x=>{if(x.type==='obstacle'&&x.id!==exceptId)out.push({id:x.id,...ob(x)})});
+  return out;
+}
+
+/* ---------- チェック ---------- */
+function check(){
+  const r=room(),F=plan().furniture,bad=new Set(),msgs=[],nm=f=>`「${f.name}」`;
+  const add=(id,t)=>{bad.add(id);msgs.push({id,t})};
+  F.forEach(f=>{
+    const a=fp(f);
+    if(a.x<-0.5||a.y<-0.5||a.x+a.w>r.w+0.5||a.y+a.h>r.d+0.5)add(f.id,`${nm(f)}が部屋からはみ出しています`);
+    r.fixtures.forEach(x=>{
+      if(x.type==='obstacle'&&hit(a,ob(x)))add(f.id,`${nm(f)}が${nm(x)}と重なっています`);
+      if(x.type==='door'||x.type==='closet'){
+        const lab=(x.type==='door'?'ドア':'収納の扉')+`（${WALLS[x.wall]}）`;
+        const {L,inside}=leafs(r,x);
+        if(inside&&L.some(l=>hitLeaf(a,l)))add(f.id,`${nm(f)}が${lab}の開く範囲にかかっています`);
+        const sb=slideBox(r,x);if(sb&&hit(a,sb))add(f.id,`${nm(f)}が${lab}の引き込み範囲にかかっています`);
+      }
+      if(x.type==='window'&&hit(a,winBox(r,x))&&f.h>x.sill)add(f.id,`${nm(f)}（高さ${f.h}）が窓（${WALLS[x.wall]}、腰高${x.sill}）にかかっています`);
+    });
+  });
+  for(let i=0;i<F.length;i++)for(let j=i+1;j<F.length;j++)
+    if(hit(fp(F[i]),fp(F[j]))){bad.add(F[j].id);add(F[i].id,`${nm(F[i])}と${nm(F[j])}が重なっています`)}
+  return {bad,msgs};
+}
+
+/* ---------- 描画 ---------- */
+function render(){renderTabs();renderPlanBar();renderCanvas();renderPanel()}
+function renderTabs(){
+  document.getElementById('tabs').innerHTML=S.rooms.map((r,i)=>`<button class="${i===S.cur?'on':''}" data-act="room" data-i="${i}">${esc(r.name)}</button>`).join('')+`<button data-act="addRoom">＋部屋を追加</button>`;
+}
+function renderPlanBar(){
+  const r=room();
+  document.getElementById('planBar').innerHTML=`<b>配置案：</b><select id="planSel">${r.plans.map(p=>`<option value="${p.id}" ${p.id===r.planId?'selected':''}>${esc(p.name)}</option>`).join('')}</select>
+  <button data-act="planDup"><span class="lg">この案を</span>複製</button><button data-act="planNew">空の案<span class="lg">を追加</span></button><button data-act="planRen">名前<span class="lg">変更</span></button><button data-act="planDel" class="danger"><span class="lg">この案を</span>削除</button>`;
+}
+function txt(x,y,s,fs,extra=''){return `<text x="${x}" y="${y}" font-size="${fs}" text-anchor="middle" dominant-baseline="middle" paint-order="stroke" stroke="#fff" stroke-width="${fs*0.25}" ${extra}>${esc(s)}</text>`}
+function arcPath(l){
+  const C=[l.hx+l.ax*l.R,l.hy+l.ay*l.R],E=[l.hx+l.bx*l.R,l.hy+l.by*l.R];
+  let d=Math.atan2(E[1]-l.hy,E[0]-l.hx)-Math.atan2(C[1]-l.hy,C[0]-l.hx);
+  while(d>Math.PI)d-=2*Math.PI;while(d<-Math.PI)d+=2*Math.PI;
+  return {C,E,sweep:d>0?1:0};
+}
+function drawWallFix(r,x,isSel,fs,px){
+  const W=WI(r,x.wall),P=o=>[W.ox+W.tx*o,W.oy+W.ty*o],p0=P(x.offset);
+  const selStroke=isSel?`stroke="#1e6fd9" stroke-width="${3*px}"`:`stroke="#333" stroke-width="${px}"`;
+  if(x.type==='outlet'){
+    const c=[p0[0]+W.nx*70,p0[1]+W.ny*70];
+    return `<g data-k="x" data-id="${x.id}" class="hit"><circle cx="${c[0]}" cy="${c[1]}" r="60" fill="#fff" ${selStroke}/>${txt(c[0],c[1],x.kind==='switch'?'ス':'コ',80,'font-weight="bold" fill="#333"')}</g>`;
+  }
+  const p1=P(x.offset+x.width),op=box([p0[0]-W.nx*T,p0[1]-W.ny*T],p1);
+  let s=`<g data-k="x" data-id="${x.id}" class="hit">`;
+  if(x.type==='window'){
+    const m0=[p0[0]-W.nx*T/2,p0[1]-W.ny*T/2],m1=[p1[0]-W.nx*T/2,p1[1]-W.ny*T/2];
+    s+=`<rect x="${op.x}" y="${op.y}" width="${op.w}" height="${op.h}" fill="#d6ecff" ${selStroke}/>`;
+    s+=`<line x1="${m0[0]}" y1="${m0[1]}" x2="${m1[0]}" y2="${m1[1]}" stroke="#4a90d9" stroke-width="${2*px}"/>`;
+    const c=P(x.offset+x.width/2);
+    s+=txt(c[0]+W.nx*fs*1.1,c[1]+W.ny*fs*1.1,`窓 腰高${x.sill}`,fs*0.85,'fill="#2a6db0"');
+    return s+'</g>';
+  }
+  s+=`<rect x="${op.x}" y="${op.y}" width="${op.w}" height="${op.h}" fill="#fafafa" ${selStroke}/>`;
+  const col=x.type==='door'?'#e07b00':'#7a4fb5';
+  if(x.kind==='hinged'||x.kind==='double'){
+    leafs(r,x).L.forEach(l=>{
+      const {C,E,sweep}=arcPath(l);
+      s+=`<path d="M${l.hx} ${l.hy}L${C[0]} ${C[1]}A${l.R} ${l.R} 0 0 ${sweep} ${E[0]} ${E[1]}Z" fill="${col}" fill-opacity=".10" stroke="${col}" stroke-width="${px}" stroke-dasharray="${4*px} ${3*px}"/>`;
+      s+=`<line x1="${l.hx}" y1="${l.hy}" x2="${E[0]}" y2="${E[1]}" stroke="${col}" stroke-width="${3*px}"/>`;
+    });
+  }else if(x.kind==='sliding'){
+    const b=slideBox(r,x);
+    s+=`<rect x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" fill="${col}" fill-opacity=".18" stroke="${col}" stroke-width="${px}" stroke-dasharray="${4*px} ${3*px}"/>`;
+    const q0=[p0[0]+W.nx*30,p0[1]+W.ny*30],q1=[p1[0]+W.nx*30,p1[1]+W.ny*30];
+    s+=`<line x1="${q0[0]}" y1="${q0[1]}" x2="${q1[0]}" y2="${q1[1]}" stroke="${col}" stroke-width="${3*px}"/>`;
+  }else{ // 引き違い
+    const h=x.width/2;
+    [[0,h+50,-30],[h-50,x.width,-80]].forEach(([a,b,o])=>{const q0=P(x.offset+a),q1=P(x.offset+b);
+      s+=`<line x1="${q0[0]+W.nx*o}" y1="${q0[1]+W.ny*o}" x2="${q1[0]+W.nx*o}" y2="${q1[1]+W.ny*o}" stroke="${col}" stroke-width="${3*px}"/>`});
+  }
+  if(x.type==='closet'){const c=P(x.offset+x.width/2);s+=txt(c[0]-W.nx*T/2,c[1]-W.ny*T/2,'収納',fs*0.8,`fill="${col}"`)}
+  return s+'</g>';
+}
+function dimLine(x1,y1,x2,y2,d,fs,px){
+  const mx=(x1+x2)/2,my=(y1+y2)/2,vert=Math.abs(x1-x2)<0.1,t=6*px;
+  let s=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#1e6fd9" stroke-width="${1.3*px}"/>`;
+  s+=vert?`<line x1="${x1-t}" y1="${y1}" x2="${x1+t}" y2="${y1}" stroke="#1e6fd9" stroke-width="${1.3*px}"/><line x1="${x2-t}" y1="${y2}" x2="${x2+t}" y2="${y2}" stroke="#1e6fd9" stroke-width="${1.3*px}"/>`
+         :`<line x1="${x1}" y1="${y1-t}" x2="${x1}" y2="${y1+t}" stroke="#1e6fd9" stroke-width="${1.3*px}"/><line x1="${x2}" y1="${y2-t}" x2="${x2}" y2="${y2+t}" stroke="#1e6fd9" stroke-width="${1.3*px}"/>`;
+  return s+txt(mx+(vert?fs*1.8:0),my-(vert?0:fs*0.8),r1(d),fs*0.9,'fill="#1e6fd9" font-weight="bold"');
+}
+function distances(a,id,fs,px){
+  const r=room(),O=rects(id),cx=a.x+a.w/2,cy=a.y+a.h/2,oy=(o)=>o.y<a.y+a.h-0.5&&a.y<o.y+o.h-0.5,ox=(o)=>o.x<a.x+a.w-0.5&&a.x<o.x+o.w-0.5;
+  let s='',b;
+  b=0;O.forEach(o=>{if(oy(o)&&o.x+o.w<=a.x+0.5)b=Math.max(b,o.x+o.w)});if(a.x-b>0.5)s+=dimLine(b,cy,a.x,cy,a.x-b,fs,px);
+  b=r.w;O.forEach(o=>{if(oy(o)&&o.x>=a.x+a.w-0.5)b=Math.min(b,o.x)});if(b-a.x-a.w>0.5)s+=dimLine(a.x+a.w,cy,b,cy,b-a.x-a.w,fs,px);
+  b=0;O.forEach(o=>{if(ox(o)&&o.y+o.h<=a.y+0.5)b=Math.max(b,o.y+o.h)});if(a.y-b>0.5)s+=dimLine(cx,b,cx,a.y,a.y-b,fs,px);
+  b=r.d;O.forEach(o=>{if(ox(o)&&o.y>=a.y+a.h-0.5)b=Math.min(b,o.y)});if(b-a.y-a.h>0.5)s+=dimLine(cx,a.y+a.h,cx,b,b-a.y-a.h,fs,px);
+  return s;
+}
+let lastChk={bad:new Set(),msgs:[]};
+function renderCanvas(){
+  const r=room(),p=plan(),px=1/V.s,fs=13*px,chk=check();lastChk=chk;
+  let s=`<defs>
+  <pattern id="g1" width="100" height="100" patternUnits="userSpaceOnUse"><rect width="100" height="100" fill="#fff"/>${V.s*100>=6?`<path d="M100 0H0V100" fill="none" stroke="#eceff3" stroke-width="${px}"/>`:''}</pattern>
+  <pattern id="g2" width="1000" height="1000" patternUnits="userSpaceOnUse"><path d="M1000 0H0V1000" fill="none" stroke="#d3d9e0" stroke-width="${px}"/></pattern>
+  <pattern id="hob" width="80" height="80" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="80" height="80" fill="#c9ccd1"/><line x1="0" y1="0" x2="0" y2="80" stroke="#8a8f96" stroke-width="20"/></pattern>
+  <pattern id="hbad" width="60" height="60" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="60" stroke="#d62828" stroke-width="12" stroke-opacity=".45"/></pattern>
+  </defs><g transform="translate(${V.tx} ${V.ty}) scale(${V.s})">`;
+  s+=`<rect x="${-T}" y="${-T}" width="${r.w+2*T}" height="${r.d+2*T}" fill="#6b6f75"/>`;
+  s+=`<rect x="0" y="0" width="${r.w}" height="${r.d}" fill="url(#g1)"/><rect x="0" y="0" width="${r.w}" height="${r.d}" fill="url(#g2)"/>`;
+  s+=txt(r.w/2,-T-fs*1.2,`${r.w}`,fs,'fill="#333" font-weight="bold"');
+  s+=txt(-T-fs*2.2,r.d/2,`${r.d}`,fs,'fill="#333" font-weight="bold"');
+  const isSel=id=>sel&&sel.id===id;
+  r.fixtures.filter(x=>x.type==='obstacle').forEach(o=>{
+    s+=`<g data-k="o" data-id="${o.id}" class="mv"><rect x="${o.x}" y="${o.y}" width="${o.w}" height="${o.d}" fill="url(#hob)" stroke="#555" stroke-width="${px}"/>`;
+    if(o.w*V.s>30&&o.d*V.s>16)s+=txt(o.x+o.w/2,o.y+o.d/2,o.name,fs*0.85,'fill="#333"');
+    s+='</g>';
+  });
+  r.fixtures.filter(x=>x.type!=='obstacle').forEach(x=>{s+=drawWallFix(r,x,isSel(x.id),fs,px)});
+  p.furniture.forEach(f=>{
+    const a=fp(f),bad=chk.bad.has(f.id);
+    s+=`<g data-k="f" data-id="${f.id}" class="mv"><rect x="${a.x}" y="${a.y}" width="${a.w}" height="${a.h}" fill="${esc(f.color)}" fill-opacity=".88" stroke="${bad?'#d62828':'#333'}" stroke-width="${(bad?2.5:1)*px}"/>`;
+    if(bad)s+=`<rect x="${a.x}" y="${a.y}" width="${a.w}" height="${a.h}" fill="url(#hbad)"/>`;
+    if(a.w*V.s>36&&a.h*V.s>18){
+      const two=a.h*V.s>34;
+      s+=txt(a.x+a.w/2,a.y+a.h/2-(two?fs*0.55:0),f.name,fs,'fill="#111" font-weight="bold"');
+      if(two)s+=txt(a.x+a.w/2,a.y+a.h/2+fs*0.7,`${f.w}×${f.d} H${f.h}`,fs*0.75,'fill="#333"');
+    }
+    s+='</g>';
+  });
+  const it=getItem(sel);
+  if(it&&(sel.k==='f'||sel.k==='o')){
+    const a=sel.k==='f'?fp(it):ob(it),m=4*px;
+    s+=`<rect x="${a.x-m}" y="${a.y-m}" width="${a.w+2*m}" height="${a.h+2*m}" fill="none" stroke="#1e6fd9" stroke-width="${2*px}" stroke-dasharray="${6*px} ${4*px}" pointer-events="none"/>`;
+    s+=`<g pointer-events="none">${distances(a,it.id,fs,px)}</g>`;
+  }
+  svg.innerHTML=s+'</g>';
+  const mov=!!(it&&(sel.k==='f'||sel.k==='o'));
+  document.getElementById('pad').hidden=!mov;
+  document.getElementById('padRot').style.visibility=mov&&sel.k==='f'?'visible':'hidden';
+  document.getElementById('padStep').textContent=padStep+'mm';
+}
+function field(label,k,v,type='number'){return `<label>${label}<input data-k="${k}" type="${type}" value="${esc(v)}"${type==='number'?' step="10"':''}></label>`}
+function pick(label,k,v,opts){return `<label>${label}<select data-k="${k}">${Object.entries(opts).map(([a,b])=>`<option value="${a}" ${a===v?'selected':''}>${b}</option>`).join('')}</select></label>`}
+function renderPanel(){
+  const r=room(),p=plan(),it=getItem(sel);let h='';
+  if(!it){
+    sel=null;
+    h+=`<h3>部屋の設定</h3><div data-t="room">${field('部屋の名前','name',r.name,'text')}${field('横幅（左右）mm','w',r.w)}${field('奥行き（上下）mm','d',r.d)}</div>`;
+    h+=`<div class="btns"><button data-act="delRoom" class="danger">この部屋を削除</button></div>`;
+    h+=`<h3>家具一覧（${esc(p.name)}）</h3>`;
+    h+=p.furniture.length?`<ul class="lst">${p.furniture.map(f=>`<li data-act="selF" data-id="${f.id}"><span class="sw" style="background:${esc(f.color)}"></span>${esc(f.name)}　${f.w}×${f.d}</li>`).join('')}</ul>`:'<div class="note">まだ家具がありません。「＋家具」で追加してください。</div>';
+    h+=`<h3>使い方</h3><div class="note">・部屋の寸法を入れ、柱や出っ張りは「障害物」で置きます。L字の部屋は、欠けた角に障害物を置いて表します。<br>・ドア・窓・コンセント・収納の「位置」は、上下の壁なら左端から、左右の壁なら上端からの距離です。<br>・収納の本体が部屋の中に食い込んでいる場合は、本体部分を障害物で置いてください。<br>・家具を選ぶと、壁や他の家具までの距離（mm）が青で表示されます。<br>・データはこのブラウザに自動保存されます。区切りのいいところで「ファイルに書き出す」で保存しておくと安心です。</div>`;
+  }else if(sel.k==='f'){
+    h+=`<h3>家具</h3><div data-t="sel">${field('名前','name',it.name,'text')}<label>色<input data-k="color" type="color" value="${esc(it.color)}"></label>${field('幅 mm','w',it.w)}${field('奥行き mm','d',it.d)}${field('高さ mm','h',it.h)}${field('左の壁から mm','x',it.x)}${field('上の壁から mm','y',it.y)}</div>`;
+    h+=`<div class="note">向き：${it.rot?'90°回転':'そのまま'}</div><div class="btns"><button data-act="rot">90°回転 (R)</button><button data-act="dup">複製</button><button data-act="del" class="danger">削除</button></div>`;
+    if(S.rooms.length>1)h+=`<label>別の部屋へ移動<select id="mvRoom">${S.rooms.map((rr,i)=>i===S.cur?'':`<option value="${i}">${esc(rr.name)}</option>`).join('')}</select></label><div class="btns"><button data-act="moveRoom">移動する</button></div>`;
+  }else if(it.type==='obstacle'){
+    h+=`<h3>障害物</h3><div data-t="sel">${field('名前','name',it.name,'text')}${field('幅（左右）mm','w',it.w)}${field('奥行き（上下）mm','d',it.d)}${field('左の壁から mm','x',it.x)}${field('上の壁から mm','y',it.y)}</div><div class="btns"><button data-act="del" class="danger">削除</button></div>`;
+  }else{
+    const ttl={door:'ドア',window:'窓',outlet:'コンセント・スイッチ',closet:'収納（クローゼット・押入れ）'}[it.type];
+    h+=`<h3>${ttl}</h3><div data-t="sel">${pick('取り付ける壁','wall',it.wall,WALLS)}${field('位置 mm','offset',it.offset)}`;
+    if(it.type!=='outlet')h+=field('幅 mm','width',it.width);
+    if(it.type==='window')h+=field('腰高（床から窓下）mm','sill',it.sill);
+    if(it.type==='outlet')h+=pick('種類','kind',it.kind,{outlet:'コンセント',switch:'スイッチ'});
+    if(it.type==='door'||it.type==='closet'){
+      h+=pick('種類','kind',it.kind,{hinged:'開き戸（片開き）',double:'両開き',sliding:'引き戸（片引き）',hikichigai:'引き違い'});
+      if(it.kind==='hinged')h+=pick('吊り元','hinge',it.hinge,{start:'起点側（左／上）',end:'反対側（右／下）'});
+      if(it.type==='door'&&(it.kind==='hinged'||it.kind==='double'))h+=pick('開く向き','swing',it.swing,{in:'内開き（この部屋側）',out:'外開き'});
+      if(it.kind==='sliding')h+=pick('引き込む向き','slide',it.slide,{start:'起点側（左／上）',end:'反対側（右／下）'});
+    }
+    h+=`</div><div class="note">位置：上下の壁は左端から、左右の壁は上端からの距離です。</div><div class="btns"><button data-act="del" class="danger">削除</button></div>`;
+  }
+  h+=`<h3>チェック結果</h3>`;
+  h+=lastChk.msgs.length?`<ul class="lst ng">${lastChk.msgs.map(m=>`<li data-act="selF" data-id="${m.id}">⚠ ${esc(m.t)}</li>`).join('')}</ul>`:'<div class="ok">✓ 問題は見つかりませんでした</div>';
+  panel.innerHTML=h;
+}
+
+/* ---------- 操作 ---------- */
+function toMM(e){const b=svg.getBoundingClientRect();return {x:(e.clientX-b.left-V.tx)/V.s,y:(e.clientY-b.top-V.ty)/V.s}}
+function fit(){
+  const r=room(),b=svg.getBoundingClientRect(),pad=T+700;
+  V.s=Math.max(0.01,Math.min((b.width-20)/(r.w+pad*2),(b.height-20)/(r.d+pad*2)));
+  V.tx=(b.width-r.w*V.s)/2;V.ty=(b.height-r.d*V.s)/2;renderCanvas();
+}
+function pickNear(v,c,th){let b=v,bd=th;c.forEach(t=>{const d=Math.abs(t-v);if(d<=bd){bd=d;b=t}});return b}
+function magnet(it,nx,ny){
+  const r=room(),a=sel.k==='f'?fp(it):ob(it),w=a.w,h=a.h,th=12/V.s,O=rects(it.id);
+  const cx=[0,r.w-w];O.forEach(o=>{if(o.y<ny+h-0.5&&ny<o.y+o.h-0.5)cx.push(o.x+o.w,o.x-w)});
+  nx=pickNear(nx,cx,th);
+  const cy=[0,r.d-h];O.forEach(o=>{if(o.x<nx+w-0.5&&nx<o.x+o.w-0.5)cy.push(o.y+o.h,o.y-h)});
+  ny=pickNear(ny,cy,th);
+  return [nx,ny];
+}
+const ptrs=new Map();
+function pinchInfo(){const [a,b]=[...ptrs.values()],r=svg.getBoundingClientRect();return {d:Math.hypot(a.x-b.x,a.y-b.y)||1,mx:(a.x+b.x)/2-r.left,my:(a.y+b.y)/2-r.top}}
+svg.addEventListener('pointerdown',e=>{
+  if(e.button===2)return;
+  svg.setPointerCapture(e.pointerId);
+  ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(ptrs.size>=2){
+    if(drag&&drag.type==='move'){const it=getItem(sel);if(it){it.x=drag.ox;it.y=drag.oy}}
+    if(ptrs.size===2){const p=pinchInfo();drag={type:'pinch',d0:p.d,s0:V.s,ax:(p.mx-V.tx)/V.s,ay:(p.my-V.ty)/V.s};renderCanvas()}
+    return;
+  }
+  const t=e.target.closest('[data-k]');
+  if(t&&e.button===0){
+    sel={k:t.dataset.k,id:t.dataset.id};
+    const it=getItem(sel),m=toMM(e);
+    if(sel.k==='f'||sel.k==='o')drag={type:'move',sx:m.x,sy:m.y,ox:it.x,oy:it.y,moved:false};
+  }else{
+    drag={type:'pan',sx:e.clientX,sy:e.clientY,tx:V.tx,ty:V.ty,tap:e.button===0};
+    return;
+  }
+  render();
+});
+svg.addEventListener('pointermove',e=>{
+  if(ptrs.has(e.pointerId))ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(!drag)return;
+  if(drag.type==='pinch'){if(ptrs.size<2)return;const p=pinchInfo();V.s=Math.min(3,Math.max(0.01,drag.s0*p.d/drag.d0));V.tx=p.mx-drag.ax*V.s;V.ty=p.my-drag.ay*V.s;renderCanvas();return}
+  if(drag.type==='pan'){if(Math.hypot(e.clientX-drag.sx,e.clientY-drag.sy)>6)drag.tap=false;V.tx=drag.tx+e.clientX-drag.sx;V.ty=drag.ty+e.clientY-drag.sy;renderCanvas();return}
+  const it=getItem(sel);if(!it)return;
+  const m=toMM(e);let nx=Math.round((drag.ox+m.x-drag.sx)/10)*10,ny=Math.round((drag.oy+m.y-drag.sy)/10)*10;
+  [nx,ny]=magnet(it,nx,ny);
+  if(nx!==it.x||ny!==it.y){it.x=r1(nx);it.y=r1(ny);drag.moved=true;renderCanvas()}
+});
+const endDrag=e=>{
+  ptrs.delete(e.pointerId);
+  if(!drag)return;
+  if(drag.type==='pinch'){if(ptrs.size===0){drag=null;flushRemote()}return}
+  if(drag.type==='pan'){const tap=drag.tap;drag=null;if(tap&&sel){sel=null;render()}flushRemote();return}
+  const mv=drag.type==='move'&&drag.moved;drag=null;if(mv)commit();else renderPanel();flushRemote();
+};
+function flushRemote(){if(pendingRemote){const d=pendingRemote;pendingRemote=null;applyRemote(d)}}
+svg.addEventListener('pointerup',endDrag);svg.addEventListener('pointercancel',endDrag);
+svg.addEventListener('wheel',e=>{
+  e.preventDefault();const m=toMM(e),b=svg.getBoundingClientRect();
+  V.s=Math.min(3,Math.max(0.01,V.s*(e.deltaY<0?1.15:1/1.15)));
+  V.tx=e.clientX-b.left-m.x*V.s;V.ty=e.clientY-b.top-m.y*V.s;renderCanvas();
+},{passive:false});
+svg.addEventListener('contextmenu',e=>e.preventDefault());
+window.addEventListener('resize',()=>renderCanvas());
+
+function rotate(f){const a=fp(f),cx=a.x+a.w/2,cy=a.y+a.h/2;f.rot=f.rot?0:1;const b=fp(f);f.x=Math.round((cx-b.w/2)/10)*10;f.y=Math.round((cy-b.h/2)/10)*10}
+function delSel(){
+  if(!sel)return;
+  if(sel.k==='f'){const p=plan();p.furniture=p.furniture.filter(f=>f.id!==sel.id)}
+  else{const r=room();r.fixtures=r.fixtures.filter(x=>x.id!==sel.id)}
+  sel=null;commit();
+}
+document.addEventListener('keydown',e=>{
+  if(!document.getElementById('dlg').hidden)return;
+  const tag=(e.target.tagName||'').toLowerCase();
+  if(tag==='input'||tag==='select'||tag==='textarea')return;
+  const k=e.key.toLowerCase();
+  if((e.ctrlKey||e.metaKey)&&k==='z'){e.preventDefault();e.shiftKey?redo():undo();return}
+  if((e.ctrlKey||e.metaKey)&&k==='y'){e.preventDefault();redo();return}
+  if(e.key==='Escape'){sel=null;render();return}
+  const it=getItem(sel);if(!it)return;
+  if(e.key==='Delete'||e.key==='Backspace'){e.preventDefault();delSel();return}
+  if(k==='r'&&sel.k==='f'){rotate(it);commit();return}
+  const st=e.shiftKey?100:e.altKey?1:10,mv={ArrowLeft:[-st,0],ArrowRight:[st,0],ArrowUp:[0,-st],ArrowDown:[0,st]}[e.key];
+  if(mv&&(sel.k==='f'||sel.k==='o')){e.preventDefault();it.x+=mv[0];it.y+=mv[1];commit()}
+});
+
+panel.addEventListener('change',e=>{
+  const el=e.target,k=el.dataset.k;if(!k)return;
+  const tgt=el.closest('[data-t]');if(!tgt)return;
+  const obj=tgt.dataset.t==='room'?room():getItem(sel);if(!obj)return;
+  let v=el.value;
+  if(el.type==='number'){v=Math.round(Number(v));if(!isFinite(v)){render();return}if(['w','d','h','width'].includes(k)&&v<10)v=10;if(k==='sill'&&v<0)v=0}
+  if(k==='name'&&!String(v).trim()){render();return}
+  obj[k]=v;commit();
+});
+document.addEventListener('change',e=>{
+  if(e.target.id==='planSel'){room().planId=e.target.value;sel=null;commit()}
+});
+const cnt=()=>plan().furniture.length;
+function center(w,d){const r=room();return [Math.max(0,Math.round((r.w-w)/20)*10),Math.max(0,Math.round((r.d-d)/20)*10)]}
+function addFix(o){o.id=uid();room().fixtures.push(o);sel={k:o.type==='obstacle'?'o':'x',id:o.id};commit()}
+const ACTS={
+  undo,redo,fit,
+  async export(){
+    const d=new Date(),n=`模様替え_${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.json`;
+    if(CAP.inArtifact){
+      if(!CAP.downloads){note('この画面ではファイルに書き出せません。');return}
+      try{await CAP.downloads.save({filename:n,data:JSON.stringify(S,null,1)})}
+      catch(e){if(e&&e.code!=='declined')note('ファイルに書き出せませんでした。');}
+      return;
+    }
+    const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(S,null,1)],{type:'application/json'}));a.download=n;document.body.appendChild(a);a.click();
+    setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);
+  },
+  import(){document.getElementById('fileIn').click()},
+  room(el){S.cur=Number(el.dataset.i);sel=null;commit();fit()},
+  async addRoom(){const n=await ask('部屋の名前を入力してください','寝室');if(!n||!n.trim())return;S.rooms.push(newRoom(n,3600,3600));S.cur=S.rooms.length-1;sel=null;commit();fit()},
+  async delRoom(){if(S.rooms.length<2){note('部屋が1つしかないため削除できません');return}if(!await confirmBox(`「${room().name}」を削除しますか？`))return;S.rooms.splice(S.cur,1);S.cur=0;sel=null;commit();fit()},
+  planDup(){const r=room(),p=plan(),c=JSON.parse(JSON.stringify(p));c.id=uid();c.name=p.name+' のコピー';c.furniture.forEach(f=>f.id=uid());r.plans.push(c);r.planId=c.id;sel=null;commit()},
+  planNew(){const r=room(),c=newPlan('案'+(r.plans.length+1));r.plans.push(c);r.planId=c.id;sel=null;commit()},
+  async planRen(){const p=plan(),n=await ask('配置案の名前',p.name);if(n&&n.trim()){p.name=n.trim();commit()}},
+  async planDel(){const r=room();if(r.plans.length<2){note('配置案が1つしかないため削除できません');return}if(!await confirmBox(`配置案「${plan().name}」を削除しますか？`))return;r.plans=r.plans.filter(p=>p.id!==r.planId);r.planId=r.plans[0].id;sel=null;commit()},
+  addF(){const [x,y]=center(900,450),f={id:uid(),name:'家具'+(cnt()+1),w:900,d:450,h:900,color:COLORS[cnt()%COLORS.length],x,y,rot:0};plan().furniture.push(f);sel={k:'f',id:f.id};commit()},
+  addO(){addFix({type:'obstacle',name:'柱',x:0,y:0,w:300,d:300})},
+  addDoor(){addFix({type:'door',wall:'bottom',offset:100,width:780,kind:'hinged',hinge:'start',swing:'in',slide:'end'})},
+  addWin(){addFix({type:'window',wall:'top',offset:100,width:1690,sill:900})},
+  addOut(){addFix({type:'outlet',wall:'left',offset:300,kind:'outlet'})},
+  addCl(){addFix({type:'closet',wall:'right',offset:100,width:1690,kind:'double',hinge:'start',swing:'in',slide:'start'})},
+  rot(){const it=getItem(sel);if(it){rotate(it);commit()}},
+  dup(){const it=getItem(sel);if(!it)return;const c={...it,id:uid(),name:it.name+'(2)',x:it.x+100,y:it.y+100};plan().furniture.push(c);sel={k:'f',id:c.id};commit()},
+  del:delSel,
+  moveRoom(){
+    const it=getItem(sel),i=Number(document.getElementById('mvRoom').value),to=S.rooms[i];if(!it||!to)return;
+    const p=plan();p.furniture=p.furniture.filter(f=>f.id!==it.id);
+    const tp=to.plans.find(q=>q.id===to.planId)||to.plans[0];const a=fp(it);
+    it.x=Math.max(0,Math.min(it.x,to.w-a.w));it.y=Math.max(0,Math.min(it.y,to.d-a.h));tp.furniture.push(it);
+    S.cur=i;sel={k:'f',id:it.id};commit();fit();
+  },
+  selF(el){sel={k:'f',id:el.dataset.id};render()},
+  nudge(el){const it=getItem(sel);if(!it||!(sel.k==='f'||sel.k==='o'))return;it.x+=Number(el.dataset.dx)*padStep;it.y+=Number(el.dataset.dy)*padStep;commit()},
+  padStep(){padStep=padStep===10?100:padStep===100?1:10;renderCanvas()},
+};
+document.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if(!el)return;const f=ACTS[el.dataset.act];if(f)f(el)});
+document.getElementById('fileIn').addEventListener('change',e=>{
+  const file=e.target.files[0];if(!file)return;
+  const rd=new FileReader();
+  rd.onload=async()=>{
+    e.target.value='';
+    let d;try{d=JSON.parse(rd.result);if(!Array.isArray(d.rooms)||!d.rooms.length)throw 0}catch(err){note('このファイルは読み込めませんでした。');return}
+    if(!await confirmBox('今の内容を、読み込んだファイルの内容に置き換えます。よろしいですか？\n（「元に戻す」で戻せます）'))return;
+    S=d;S.cur=0;sel=null;commit();fit();
+  };
+  rd.readAsText(file);
+});
+
+render();
+requestAnimationFrame(fit);
+save();
+initCaps();
+</script>
+</body>
+</html>
