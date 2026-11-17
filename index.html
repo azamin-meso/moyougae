@@ -11,23 +11,31 @@ body{display:flex;flex-direction:column}
 header{display:flex;align-items:center;gap:6px;padding:6px 10px;background:#2f3e4e;color:#fff;flex-wrap:wrap}
 header h1{font-size:16px;margin:0 12px 0 0;font-weight:bold}
 header .sp{flex:1}
-#saved{font-size:12px;opacity:.75}
-button{font:inherit;padding:4px 10px;border:1px solid #9aa5b1;background:#fff;border-radius:4px;cursor:pointer}
+#saved,#cloud{font-size:12px;opacity:.75}
+button{font:inherit;padding:4px 10px;border:1px solid #9aa5b1;background:#fff;border-radius:4px;cursor:pointer;color:#222}
 button:hover{background:#e8f0fb}
 header button{background:#435568;color:#fff;border-color:#62788f}
 header button:hover{background:#536a82}
+#modes{display:flex;background:#2f3e4e;padding:0 10px 8px;gap:6px}
+#modes button{flex:1;max-width:220px;padding:8px;font-weight:bold;background:#435568;color:#dfe6ee;border-color:#62788f}
+#modes button.on{background:#fff;color:#2f3e4e;border-color:#fff}
 #tabs{display:flex;gap:2px;padding:6px 10px 0;background:#d5dbe2;flex-wrap:wrap}
 #tabs button{border-radius:6px 6px 0 0;border-bottom:none;background:#c3cbd5}
 #tabs button.on{background:#fff;font-weight:bold}
 #main{flex:1;display:flex;min-height:0}
 #left{flex:1;display:flex;flex-direction:column;min-width:0;background:#fff}
 .bar{display:flex;gap:6px;align-items:center;padding:6px 10px;border-bottom:1px solid #dde2e8;flex-wrap:wrap}
-.bar select{font:inherit;padding:3px}
+.bar select{font:inherit;padding:3px;max-width:340px}
 .hint{font-size:12px;color:#667}
+#cvwrap{position:relative;flex:1;min-height:0;display:flex}
 #cv{flex:1;width:100%;min-height:0;display:block;background:#f6f7f9;touch-action:none;user-select:none;cursor:grab}
 #cv .mv{cursor:move}
 #cv .hit{cursor:pointer}
-aside{width:310px;overflow:auto;padding:10px 12px;background:#fafbfc;border-left:1px solid #dde2e8}
+#pad{position:absolute;right:10px;bottom:10px;display:grid;grid-template-columns:repeat(3,46px);grid-template-rows:repeat(3,46px);gap:4px}
+#pad[hidden]{display:none}
+#pad button{padding:0;font-size:18px;background:rgba(255,255,255,.92);box-shadow:0 1px 3px rgba(0,0,0,.2)}
+#pad .st{font-size:11px}
+aside{width:320px;overflow:auto;padding:10px 12px;background:#fafbfc;border-left:1px solid #dde2e8}
 aside h3{font-size:14px;margin:14px 0 6px;padding-bottom:3px;border-bottom:2px solid #2f3e4e}
 aside h3:first-child{margin-top:0}
 aside label{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:5px 0;font-size:13px}
@@ -35,43 +43,78 @@ aside input,aside select{font:inherit;width:140px;padding:3px 5px}
 aside input[type=color]{padding:0;height:28px}
 .btns{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
 .danger{color:#c0392b;border-color:#e0a9a2}
+.primary{background:#1e6fd9;color:#fff;border-color:#1e6fd9;font-weight:bold}
+.primary:hover{background:#185bb3}
 ul.lst{list-style:none;padding:0;margin:0}
 ul.lst li{padding:4px 6px;border-radius:4px;cursor:pointer;font-size:13px}
 ul.lst li:hover{background:#e8f0fb}
-ul.ng li{color:#b42318}
+ul.ng li.ng{color:#b42318}
+ul.ng li.wn{color:#a15c00}
 .ok{color:#1a7f37;font-size:13px}
 .note{font-size:12px;color:#667;line-height:1.6}
-#cvwrap{position:relative;flex:1;min-height:0;display:flex}
-#pad{position:absolute;right:10px;bottom:10px;display:grid;grid-template-columns:repeat(3,46px);grid-template-rows:repeat(3,46px);gap:4px}
-#pad[hidden]{display:none}
-#pad button{padding:0;font-size:18px;background:rgba(255,255,255,.92);box-shadow:0 1px 3px rgba(0,0,0,.2)}
-#pad .st{font-size:11px}
+.sw{display:inline-block;width:12px;height:12px;border:1px solid #555;vertical-align:-1px;margin-right:6px}
+table.lv{width:100%;border-collapse:collapse;font-size:13px}
+table.lv td{padding:3px 2px;border-bottom:1px solid #e3e7ec}
+table.lv input{width:70px}
+table.lv input.pt{width:90px}
+table.lv tr.on td{background:#e8f0fb}
+/* 候補リスト */
+#candView{flex:1;overflow:auto;padding:12px;background:#f6f7f9}
+#candView[hidden]{display:none}
+.ctop{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.ctop .big{font-size:16px;padding:10px 18px}
+.chip{border-radius:16px;padding:4px 12px}
+.chip.on{background:#2f3e4e;color:#fff;border-color:#2f3e4e}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
+.card{background:#fff;border:1px solid #dde2e8;border-radius:8px;padding:10px;display:flex;gap:10px}
+.card .ph{width:96px;height:96px;flex:none;border-radius:6px;background:#eef0f3;display:flex;align-items:center;justify-content:center;color:#99a;font-size:12px;overflow:hidden}
+.card .ph img{width:100%;height:100%;object-fit:cover}
+.card .bd{flex:1;min-width:0}
+.card .nm{font-weight:bold;font-size:15px;margin-bottom:2px}
+.card .mt{font-size:12px;color:#556;line-height:1.6}
+.card .btns{margin:6px 0 0}
+.card .btns button{font-size:12px;padding:4px 8px}
+.badge{display:inline-block;font-size:11px;padding:1px 7px;border-radius:9px;margin-left:6px;vertical-align:2px;font-weight:normal}
+.b-cand{background:#e8f0fb;color:#1e6fd9}.b-buy{background:#e3f4e8;color:#1a7f37}.b-skip{background:#eee;color:#777}
+.form{background:#fff;border:2px solid #1e6fd9;border-radius:8px;padding:12px;margin-bottom:12px;max-width:560px}
+.form label{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:6px 0}
+.form input,.form select,.form textarea{font:inherit;width:62%;padding:5px}
+.form textarea{height:60px}
+.form .dims{display:flex;gap:6px;width:62%}
+.form .dims input{width:33%}
+.form .phbox{display:flex;gap:10px;align-items:center;margin-bottom:8px}
+.form .phbox .ph{width:120px;height:120px;border-radius:6px;background:#eef0f3;display:flex;align-items:center;justify-content:center;color:#99a;font-size:12px;overflow:hidden}
+.form .phbox img{width:100%;height:100%;object-fit:cover}
 #dlg{position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;z-index:10}
 #dlg[hidden]{display:none}
 #dlg .box{background:#fff;border-radius:8px;padding:16px;width:min(92vw,380px);box-shadow:0 6px 24px rgba(0,0,0,.25)}
 #dlg .msg{white-space:pre-wrap;margin-bottom:10px;line-height:1.6}
-#dlg input{width:100%;font-size:16px;padding:6px}
+#dlg input,#dlg select{width:100%;font-size:16px;padding:6px}
 #dlg .btns{justify-content:flex-end}
 .mhint{display:none}
+[hidden]{display:none!important}
 @media (max-width:820px){
   html,body{height:auto;font-size:15px}
   body{min-height:100%}
   header{flex-wrap:nowrap;overflow-x:auto;padding:4px 6px;gap:4px}
   header h1,#saved,.lg{display:none}
-  header .sp{flex:1}
   #cloud{white-space:nowrap}
+  #modes{padding:0 6px 6px}
   button{padding:8px 10px;white-space:nowrap;flex:none}
   .bar{flex-wrap:nowrap;overflow-x:auto;white-space:nowrap;padding:4px 6px}
   #tabs{flex-wrap:nowrap;overflow-x:auto;padding:4px 6px 0}
   #main{flex-direction:column}
   #left{flex:none;height:82vh;height:82svh}
+  #main.cand #left{height:auto;min-height:82svh}
   aside{width:auto;border-left:none;border-top:1px solid #dde2e8;overflow:visible}
   aside input,aside select{font-size:16px;width:170px}
-  .bar select{font-size:16px}
+  table.lv input{width:64px;font-size:16px}
+  .bar select,.form input,.form select,.form textarea{font-size:16px}
+  .form input,.form select,.form textarea,.form .dims{width:66%}
+  .cards{grid-template-columns:1fr}
   .phint{display:none}
   .mhint{display:flex}
 }
-.sw{display:inline-block;width:12px;height:12px;border:1px solid #555;vertical-align:-1px;margin-right:6px}
 </style>
 </head>
 <body>
@@ -79,147 +122,129 @@ ul.ng li{color:#b42318}
   <h1>模様替えシミュレーター</h1>
   <button data-act="undo" title="Ctrl+Z">↶<span class="lg"> 元に戻す</span></button>
   <button data-act="redo" title="Ctrl+Y">↷<span class="lg"> やり直し</span></button>
-  <button data-act="fit">全体<span class="lg">表示</span></button>
+  <button data-act="fit" id="fitBtn">全体<span class="lg">表示</span></button>
   <span class="sp"></span>
-  <span id="saved"></span> <span id="cloud" style="font-size:12px;opacity:.75"></span>
+  <span id="saved"></span> <span id="cloud"></span>
   <button data-act="export"><span class="lg">ファイルに</span>書き出す</button>
   <button data-act="import"><span class="lg">ファイルを</span>読み込む</button>
   <input type="file" id="fileIn" accept=".json,application/json" hidden>
 </header>
+<nav id="modes">
+  <button data-act="mode" data-m="plan">間取り</button>
+  <button data-act="mode" data-m="shelf">棚</button>
+  <button data-act="mode" data-m="cand">候補リスト</button>
+</nav>
 <div id="tabs"></div>
 <div id="main">
   <div id="left">
-    <div class="bar" id="planBar"></div>
-    <div class="bar">
-      <button data-act="addF">＋家具</button>
-      <button data-act="addO">＋障害物<span class="lg">（柱・出っ張り）</span></button>
-      <button data-act="addDoor">＋ドア</button>
-      <button data-act="addWin">＋窓</button>
-      <button data-act="addOut">＋コンセント<span class="lg">・スイッチ</span></button>
-      <button data-act="addCl">＋収納<span class="lg">（クローゼット・押入れ）</span></button>
-    </div>
+    <div class="bar" id="bar1"></div>
+    <div class="bar" id="bar2"></div>
     <div id="cvwrap"><svg id="cv" xmlns="http://www.w3.org/2000/svg"></svg>
       <div id="pad" hidden>
-        <span></span><button data-act="nudge" data-dx="0" data-dy="-1">↑</button><button data-act="padStep" class="st" id="padStep">10mm</button>
+        <span></span><button data-act="nudge" data-dx="0" data-dy="-1" id="padU">↑</button><button data-act="padStep" class="st" id="padStep">10mm</button>
         <button data-act="nudge" data-dx="-1" data-dy="0">←</button><button data-act="rot" id="padRot" title="90°回転">⟳</button><button data-act="nudge" data-dx="1" data-dy="0">→</button>
-        <span></span><button data-act="nudge" data-dx="0" data-dy="1">↓</button><span></span>
+        <span></span><button data-act="nudge" data-dx="0" data-dy="1" id="padD">↓</button><span></span>
       </div></div>
-    <div class="bar hint mhint">1本指：家具の移動・画面の移動 ／ 2本指：拡大縮小 ／ 右下のボタン：微調整・回転</div>
-    <div class="bar hint phint">ドラッグで移動（10mm単位・壁や家具に吸着）／ ホイールで拡大縮小 ／ 何もない所をドラッグで画面移動 ／ 矢印キー：10mm（Shift：100mm、Alt：1mm）／ R：90°回転 ／ Delete：削除</div>
+    <div id="candView" hidden></div>
+    <div class="bar hint mhint" id="mhint"></div>
+    <div class="bar hint phint" id="phint"></div>
   </div>
   <aside id="panel"></aside>
 </div>
-<div id="dlg" hidden><div class="box"><div class="msg" id="dlgMsg"></div><input id="dlgIn"><div class="btns"><button id="dlgCancel">キャンセル</button><button id="dlgOk">OK</button></div></div></div>
+<div id="dlg" hidden><div class="box"><div class="msg" id="dlgMsg"></div><input id="dlgIn"><select id="dlgSel"></select><div class="btns"><button id="dlgCancel">キャンセル</button><button id="dlgOk" class="primary">OK</button></div></div></div>
+<input type="file" id="photoIn" accept="image/*" hidden>
 <script>
 'use strict';
-const KEY='moyougae_v1', T=120; // 壁の表示厚さ(mm)
+const KEY='moyougae_v1', T=120;
 const WALLS={top:'上の壁',right:'右の壁',bottom:'下の壁',left:'左の壁'};
 const COLORS=['#c8a27a','#8fb3d9','#a8c98f','#e0b0c0','#d9c27a','#b0a0d0','#9fd0c8','#d99f8f'];
 const svg=document.getElementById('cv'), panel=document.getElementById('panel');
+const $=id=>document.getElementById(id);
 const uid=()=>Math.random().toString(36).slice(2,10);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const r1=v=>Math.round(v);
+const s10=v=>Math.round(v/10)*10;
 
 /* ---------- データ ---------- */
 function newPlan(name){return {id:uid(),name,furniture:[]}}
 function newRoom(name,w,d){const p=newPlan('案1');return {id:uid(),name,w,d,fixtures:[],plans:[p],planId:p.id}}
 function sample(){
   const r=newRoom('リビング',3640,4550);
-  r.fixtures.push({id:uid(),type:'door',wall:'bottom',offset:2700,width:780,kind:'hinged',hinge:'end',swing:'in',slide:'start'});
+  r.fixtures.push({id:uid(),type:'door',wall:'bottom',offset:2700,width:780,kind:'hinged',hinge:'end',swing:'in',slide:'end'});
   r.fixtures.push({id:uid(),type:'window',wall:'top',offset:900,width:1690,sill:900});
   r.fixtures.push({id:uid(),type:'outlet',wall:'left',offset:1800,kind:'outlet'});
   r.fixtures.push({id:uid(),type:'obstacle',name:'柱',x:3340,y:0,w:300,d:300});
-  const p=r.plans[0]; p.name='案1：今の配置';
+  const p=r.plans[0];p.name='案1：今の配置';
   p.furniture.push({id:uid(),name:'ソファ',w:1800,d:850,h:800,color:COLORS[0],x:200,y:3500,rot:0});
   p.furniture.push({id:uid(),name:'テレビ台',w:1500,d:400,h:450,color:COLORS[1],x:0,y:1100,rot:1});
-  return {version:1,rooms:[r],cur:0};
+  return {version:2,rooms:[r],cur:0,shelves:[],cands:[]};
 }
-let S;
-try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){S=null}
-if(!S||!Array.isArray(S.rooms)||!S.rooms.length)S=sample();
-let snap=JSON.stringify(S), hist=[], fut=[];
+function migrate(d){
+  d.version=2;if(!Array.isArray(d.shelves))d.shelves=[];if(!Array.isArray(d.cands))d.cands=[];
+  if(!(d.cur>=0&&d.cur<d.rooms.length))d.cur=0;
+  return d;
+}
+let S=null,PHOTOS={};
+let snap='',hist=[],fut=[];
 let localAt=0;try{localAt=Number(localStorage.getItem(KEY+'_at'))||0}catch(e){}
-const DEV=uid(), CAP={downloads:null,inArtifact:false};
+const DEV=uid(),CAP={downloads:null,inArtifact:false};
 let cloud=null,cloudBusy=false,cloudDirty=false,cloudTimer=null,pendingRemote=null;
-const setCloud=t=>{document.getElementById('cloud').textContent=t};
-let sel=null, drag=null, V={s:0.1,tx:40,ty:40}, padStep=10;
+let sel=null,drag=null,V={s:0.1,tx:40,ty:40},padStep=10,lastChk={bad:new Set(),warn:new Set(),msgs:[]};
+let UI={mode:'plan',shelfRef:null,level:0,cfilter:'all'};
+try{Object.assign(UI,JSON.parse(localStorage.getItem(KEY+'_ui'))||{})}catch(e){}
+let candEdit=null; // 編集中の候補（下書き）
+const saveUI=()=>{try{localStorage.setItem(KEY+'_ui',JSON.stringify({mode:UI.mode,shelfRef:UI.shelfRef,level:UI.level,cfilter:UI.cfilter}))}catch(e){}};
 
 const room=()=>{if(!(S.cur>=0&&S.cur<S.rooms.length))S.cur=0;return S.rooms[S.cur]};
 const plan=()=>{const r=room();let p=r.plans.find(p=>p.id===r.planId);if(!p){p=r.plans[0];r.planId=p.id}return p};
-function getItem(s){if(!s)return null;return s.k==='f'?plan().furniture.find(f=>f.id===s.id):room().fixtures.find(x=>x.id===s.id)}
 
-function save(){
-  try{localStorage.setItem(KEY,JSON.stringify(S));document.getElementById('saved').textContent='自動保存済み '+new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'})}
-  catch(e){document.getElementById('saved').textContent='自動保存できません（ファイルに書き出してください）'}
+/* ---------- 保存（IndexedDB、使えなければ localStorage） ---------- */
+const IDB={db:null,
+  open(){return new Promise((res,rej)=>{const q=indexedDB.open('moyougae',1);q.onupgradeneeded=()=>q.result.createObjectStore('kv');q.onsuccess=()=>{this.db=q.result;res()};q.onerror=()=>rej(q.error)})},
+  get(k){return new Promise((res,rej)=>{const q=this.db.transaction('kv').objectStore('kv').get(k);q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error)})},
+  set(k,v){return new Promise((res,rej)=>{const tx=this.db.transaction('kv','readwrite');tx.objectStore('kv').put(v,k);tx.oncomplete=()=>res();tx.onerror=()=>rej(tx.error)})}};
+let saveTimer=null;
+function save(){clearTimeout(saveTimer);saveTimer=setTimeout(saveNow,250)}
+async function saveNow(){
+  const j=JSON.stringify(S);let ok=false;
+  if(IDB.db){try{await IDB.set('state',j);ok=true}catch(e){}}
+  if(!ok){try{localStorage.setItem(KEY,j);ok=true}catch(e){}}
+  $('saved').textContent=ok?'自動保存済み '+new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}):'自動保存できません（ファイルに書き出してください）';
 }
+async function savePhotos(){if(IDB.db){try{await IDB.set('photos',PHOTOS)}catch(e){note('写真を保存できませんでした。容量が足りない可能性があります。')}}}
 function changed(){save();localAt=Date.now();try{localStorage.setItem(KEY+'_at',String(localAt))}catch(e){}if(cloud){clearTimeout(cloudTimer);cloudTimer=setTimeout(pushCloud,1500)}}
-function commit(){const j=JSON.stringify(S);if(j!==snap){hist.push(snap);if(hist.length>200)hist.shift();fut=[];snap=j;changed()}render()}
-function undo(){if(!hist.length)return;fut.push(snap);snap=hist.pop();S=JSON.parse(snap);changed();if(!getItem(sel))sel=null;render()}
-function redo(){if(!fut.length)return;hist.push(snap);snap=fut.pop();S=JSON.parse(snap);changed();if(!getItem(sel))sel=null;render()}
+function commit(){const j=JSON.stringify(S);if(j!==snap){hist.push(snap);if(hist.length>150)hist.shift();fut=[];snap=j;changed()}render()}
+function afterRestore(){migrate(S);changed();if(!selItem())sel=null;render()}
+function undo(){if(!hist.length)return;fut.push(snap);snap=hist.pop();S=JSON.parse(snap);afterRestore()}
+function redo(){if(!fut.length)return;hist.push(snap);snap=fut.pop();S=JSON.parse(snap);afterRestore()}
 
 /* ---------- 画面内ダイアログ ---------- */
-function dialog(msg,input=null,cancel=true){
+function dialog(msg,{input=null,options=null,cancel=true}={}){
   return new Promise(res=>{
-    const d=document.getElementById('dlg'),inp=document.getElementById('dlgIn'),ok=document.getElementById('dlgOk'),cc=document.getElementById('dlgCancel');
-    document.getElementById('dlgMsg').textContent=msg;
-    inp.hidden=input===null;inp.value=input??'';cc.hidden=!cancel;d.hidden=false;
+    const d=$('dlg'),inp=$('dlgIn'),sl=$('dlgSel'),ok=$('dlgOk'),cc=$('dlgCancel');
+    $('dlgMsg').textContent=msg;
+    inp.hidden=input===null;inp.value=input??'';
+    sl.hidden=!options;if(options)sl.innerHTML=options.map((o,i)=>`<option value="${i}">${esc(o)}</option>`).join('');
+    cc.hidden=!cancel;d.hidden=false;
     if(input!==null)setTimeout(()=>inp.focus(),30);
     const done=v=>{d.hidden=true;ok.onclick=cc.onclick=inp.onkeydown=null;res(v)};
-    ok.onclick=()=>done(input===null?true:inp.value);
-    cc.onclick=()=>done(input===null?false:null);
+    ok.onclick=()=>done(options?Number(sl.value):input===null?true:inp.value);
+    cc.onclick=()=>done(input===null&&!options?false:null);
     inp.onkeydown=e=>{if(e.key==='Enter')ok.onclick();if(e.key==='Escape')cc.onclick()};
   });
 }
-const ask=(m,v)=>dialog(m,v),confirmBox=m=>dialog(m),note=m=>dialog(m,null,false);
+const ask=(m,v)=>dialog(m,{input:v}),confirmBox=m=>dialog(m),note=m=>dialog(m,{cancel:false}),choose=(m,o)=>dialog(m,{options:o});
 
-/* ---------- クラウド同期（リンクで開いたとき） ---------- */
-async function pushCloud(){
-  if(!cloud)return;if(cloudBusy){cloudDirty=true;return}
-  cloudBusy=true;
-  try{await cloud.set({json:JSON.stringify(S),at:localAt,dev:DEV});setCloud('☁ 同期済み')}
-  catch(e){setCloud('☁ 同期できませんでした（この端末には保存済み）')}
-  cloudBusy=false;if(cloudDirty){cloudDirty=false;pushCloud()}
-}
-function applyRemote(d){
-  if(drag){pendingRemote=d;return}
-  let n;try{n=JSON.parse(d.json)}catch(e){return}
-  if(!n||!Array.isArray(n.rooms)||!n.rooms.length)return;
-  hist.push(snap);fut=[];S=n;snap=JSON.stringify(S);localAt=d.at;save();
-  try{localStorage.setItem(KEY+'_at',String(localAt))}catch(e){}
-  if(!getItem(sel))sel=null;render();setCloud('☁ 他の端末の変更を反映しました');
-}
-async function initCaps(){
-  let tries=0;while(!(window.claude&&typeof window.claude.use==='function')){if(++tries>20)return;await new Promise(r=>setTimeout(r,150))}
-  CAP.inArtifact=true;
-  try{CAP.downloads=await window.claude.use('downloads')}catch(e){}
-  let db=null,user=null;
-  try{db=await window.claude.use('db');user=await window.claude.use('user')}catch(e){}
-  if(!db||!user){setCloud('');return}
-  let id=null;try{id=await user.id()}catch(e){}
-  if(!id)return;
-  try{cloud=db.doc('data/users/'+id+'/state')}catch(e){cloud=null;return}
-  setCloud('☁ 接続中…');
-  const tm=setTimeout(()=>setCloud('☁ つながりません（この端末には保存済み）'),10000);
-  cloud.onSnapshot(sn=>{
-    if(!sn.metadata.fromCache)clearTimeout(tm);
-    if(!sn.exists){if(!sn.metadata.fromCache){if(localAt>0)pushCloud();else setCloud('☁ 同期済み')}return}
-    const d=sn.data()||{};
-    if(d.dev===DEV){return}
-    if(typeof d.at==='number'&&d.at>localAt)applyRemote(d);
-    else if(!sn.metadata.fromCache){if(d.at<localAt)pushCloud();else setCloud('☁ 同期済み')}
-  },()=>{clearTimeout(tm);cloud=null;setCloud('')});
-}
-
-/* ---------- 幾何 ---------- */
+/* ---------- 間取りの幾何 ---------- */
 const fp=f=>({x:f.x,y:f.y,w:f.rot?f.d:f.w,h:f.rot?f.w:f.d});
 const ob=o=>({x:o.x,y:o.y,w:o.w,h:o.d});
 const box=(p,q)=>({x:Math.min(p[0],q[0]),y:Math.min(p[1],q[1]),w:Math.abs(q[0]-p[0]),h:Math.abs(q[1]-p[1])});
 const hit=(a,b)=>a.x<b.x+b.w-0.5&&b.x<a.x+a.w-0.5&&a.y<b.y+b.h-0.5&&b.y<a.y+a.h-0.5;
 function WI(r,wall){switch(wall){
-  case 'top':return {ox:0,oy:0,tx:1,ty:0,nx:0,ny:1};
-  case 'bottom':return {ox:0,oy:r.d,tx:1,ty:0,nx:0,ny:-1};
-  case 'left':return {ox:0,oy:0,tx:0,ty:1,nx:1,ny:0};
-  default:return {ox:r.w,oy:0,tx:0,ty:1,nx:-1,ny:0};}}
+  case 'top':return {ox:0,oy:0,tx:1,ty:0,nx:0,ny:1,L:r.w};
+  case 'bottom':return {ox:0,oy:r.d,tx:1,ty:0,nx:0,ny:-1,L:r.w};
+  case 'left':return {ox:0,oy:0,tx:0,ty:1,nx:1,ny:0,L:r.d};
+  default:return {ox:r.w,oy:0,tx:0,ty:1,nx:-1,ny:0,L:r.d};}}
 function leafs(r,x){
   const W=WI(r,x.wall),P=o=>[W.ox+W.tx*o,W.oy+W.ty*o];
   const s=(x.type==='closet'||x.swing!=='out')?1:-1,bx=W.nx*s,by=W.ny*s,L=[];
@@ -245,17 +270,16 @@ function slideBox(r,x){
   return box([W.ox+W.tx*a,W.oy+W.ty*a],[W.ox+W.tx*b+W.nx*D,W.oy+W.ty*b+W.ny*D]);
 }
 function winBox(r,x){const W=WI(r,x.wall),a=x.offset,b=a+x.width;return box([W.ox+W.tx*a,W.oy+W.ty*a],[W.ox+W.tx*b+W.nx*150,W.oy+W.ty*b+W.ny*150])}
+const fixW=x=>x.type==='outlet'?0:x.width;
 function rects(exceptId){
   const out=[];
   plan().furniture.forEach(f=>{if(f.id!==exceptId)out.push({id:f.id,...fp(f)})});
   room().fixtures.forEach(x=>{if(x.type==='obstacle'&&x.id!==exceptId)out.push({id:x.id,...ob(x)})});
   return out;
 }
-
-/* ---------- チェック ---------- */
-function check(){
+function checkPlan(){
   const r=room(),F=plan().furniture,bad=new Set(),msgs=[],nm=f=>`「${f.name}」`;
-  const add=(id,t)=>{bad.add(id);msgs.push({id,t})};
+  const add=(id,t)=>{bad.add(id);msgs.push({id,t,c:'ng'})};
   F.forEach(f=>{
     const a=fp(f);
     if(a.x<-0.5||a.y<-0.5||a.x+a.w>r.w+0.5||a.y+a.h>r.d+0.5)add(f.id,`${nm(f)}が部屋からはみ出しています`);
@@ -272,18 +296,91 @@ function check(){
   });
   for(let i=0;i<F.length;i++)for(let j=i+1;j<F.length;j++)
     if(hit(fp(F[i]),fp(F[j]))){bad.add(F[j].id);add(F[i].id,`${nm(F[i])}と${nm(F[j])}が重なっています`)}
-  return {bad,msgs};
+  return {bad,warn:new Set(),msgs};
 }
 
-/* ---------- 描画 ---------- */
-function render(){renderTabs();renderPlanBar();renderCanvas();renderPanel()}
-function renderTabs(){
-  document.getElementById('tabs').innerHTML=S.rooms.map((r,i)=>`<button class="${i===S.cur?'on':''}" data-act="room" data-i="${i}">${esc(r.name)}</button>`).join('')+`<button data-act="addRoom">＋部屋を追加</button>`;
+/* ---------- 棚 ---------- */
+function defaultShelf(H){
+  const t=18,n=Math.max(1,Math.min(8,Math.round((H-t)/350)));
+  const h=Math.max(50,Math.floor((H-t*(n+1))/n));
+  return {t,iw:null,idp:null,levels:Array.from({length:n},()=>({h,parts:[],items:[]}))};
 }
-function renderPlanBar(){
+function shelfList(){
+  const L=[];
+  S.rooms.forEach(r=>r.plans.forEach(p=>p.furniture.forEach(f=>{if(f.shelf)L.push({ref:{t:'f',r:r.id,p:p.id,f:f.id},label:`${r.name}／${p.name}／${f.name}`,holder:f,sh:f.shelf,linked:true,room:r,plan:p})})));
+  S.shelves.forEach(s=>L.push({ref:{t:'s',id:s.id},label:`${s.name}（単独）`,holder:s,sh:s.shelf,linked:false}));
+  return L;
+}
+const refKey=r=>!r?'':r.t==='f'?`f:${r.r}:${r.p}:${r.f}`:`s:${r.id}`;
+function shelfCtx(){
+  const L=shelfList();let c=L.find(x=>refKey(x.ref)===refKey(UI.shelfRef));
+  if(!c&&L.length){c=L[0];UI.shelfRef=c.ref}
+  if(c){if(!(UI.level>=0&&UI.level<c.sh.levels.length))UI.level=Math.max(0,c.sh.levels.length-1)}
+  return c||null;
+}
+function SG(c){
+  const sh=c.sh,t=sh.t,iw=sh.iw||Math.max(10,c.holder.w-2*t),idp=sh.idp||c.holder.d,base=[];
+  let y=t;sh.levels.forEach(lv=>{base.push(y);y+=lv.h+t});
+  return {t,iw,idp,base,Ht:y,W:iw+2*t};
+}
+const lvName=(c,li)=>`上から${c.sh.levels.length-li}段目`;
+function itemY(lv,it,d=0){if(!it.on||d>20)return 0;const b=lv.items.find(o=>o.id===it.on);return b?itemY(lv,b,d+1)+b.h:0}
+function subtree(lv,id){const s=new Set([id]);let grow=true;while(grow){grow=false;lv.items.forEach(o=>{if(o.on&&s.has(o.on)&&!s.has(o.id)){s.add(o.id);grow=true}})}return s}
+function findShelfItem(c,id){for(let li=0;li<c.sh.levels.length;li++){const lv=c.sh.levels[li],it=lv.items.find(o=>o.id===id);if(it)return {lv,li,it}}return null}
+function checkShelf(c){
+  const g=SG(c),bad=new Set(),warn=new Set(),msgs=[];
+  c.sh.levels.forEach((lv,li)=>{
+    const nm=lvName(c,li);
+    lv.items.forEach(it=>{
+      const Y=itemY(lv,it),q=`「${it.name}」`;
+      const ng=t=>{bad.add(it.id);msgs.push({id:it.id,t,c:'ng'})};
+      if(Y+it.h>lv.h+0.5)ng(`${q}が${nm}の高さを${r1(Y+it.h-lv.h)}mm超えています`);
+      if(it.x<-0.5||it.x+it.w>g.iw+0.5)ng(`${q}が棚の幅からはみ出しています`);
+      (lv.parts||[]).forEach(p=>{if(it.x<p+g.t-0.5&&it.x+it.w>p+0.5)ng(`${q}が仕切りにかかっています`)});
+      if(it.zb+it.d>g.idp+0.5){warn.add(it.id);msgs.push({id:it.id,t:`${q}が手前に${r1(it.zb+it.d-g.idp)}mm飛び出しています`,c:'wn'})}
+    });
+    for(let i=0;i<lv.items.length;i++)for(let j=i+1;j<lv.items.length;j++){
+      const a=lv.items[i],b=lv.items[j],ya=itemY(lv,a),yb=itemY(lv,b);
+      if(a.x<b.x+b.w-0.5&&b.x<a.x+a.w-0.5&&a.zb<b.zb+b.d-0.5&&b.zb<a.zb+a.d-0.5&&ya<yb+b.h-0.5&&yb<ya+a.h-0.5){bad.add(a.id);bad.add(b.id);msgs.push({id:a.id,t:`「${a.name}」と「${b.name}」が重なっています（${nm}）`,c:'ng'})}
+    }
+  });
+  const g2=SG(c);if(g2.Ht>c.holder.h+0.5)msgs.push({id:null,t:`段の合計（${r1(g2.Ht)}mm）が棚の外寸高さ（${c.holder.h}mm）を超えています`,c:'wn'});
+  return {bad,warn,msgs};
+}
+
+/* ---------- 選択 ---------- */
+function selItem(){
+  if(!sel)return null;
+  if(UI.mode==='plan'){if(sel.k==='f')return plan().furniture.find(f=>f.id===sel.id);return room().fixtures.find(x=>x.id===sel.id)}
+  if(UI.mode==='shelf'){const c=shelfCtx();if(!c)return null;const f=findShelfItem(c,sel.id);return f?f.it:null}
+  return null;
+}
+const movable=()=>!!(sel&&selItem()&&(UI.mode==='shelf'||sel.k==='f'||sel.k==='o'||sel.k==='x'));
+
+/* ---------- 描画 ---------- */
+function render(){
+  if(!S)return;
+  document.querySelectorAll('#modes button').forEach(b=>b.classList.toggle('on',b.dataset.m===UI.mode));
+  const m=UI.mode;
+  $('tabs').hidden=m!=='plan';$('cvwrap').hidden=m==='cand';$('candView').hidden=m!=='cand';$('panel').hidden=m==='cand';
+  $('bar1').hidden=m==='cand';$('bar2').hidden=m==='cand';$('fitBtn').hidden=m==='cand';
+  $('main').classList.toggle('cand',m==='cand');
+  $('mhint').hidden=m==='cand';$('phint').hidden=m==='cand';
+  if(m==='plan'){renderTabs();renderPlanBars();renderCanvas();renderPanel()}
+  else if(m==='shelf'){renderShelfBars();renderShelf();renderShelfPanel()}
+  else renderCands();
+  saveUI();
+}
+function renderTabs(){
+  $('tabs').innerHTML=S.rooms.map((r,i)=>`<button class="${i===S.cur?'on':''}" data-act="room" data-i="${i}">${esc(r.name)}</button>`).join('')+`<button data-act="addRoom">＋部屋を追加</button>`;
+}
+function renderPlanBars(){
   const r=room();
-  document.getElementById('planBar').innerHTML=`<b>配置案：</b><select id="planSel">${r.plans.map(p=>`<option value="${p.id}" ${p.id===r.planId?'selected':''}>${esc(p.name)}</option>`).join('')}</select>
+  $('bar1').innerHTML=`<b>配置案：</b><select id="planSel">${r.plans.map(p=>`<option value="${p.id}" ${p.id===r.planId?'selected':''}>${esc(p.name)}</option>`).join('')}</select>
   <button data-act="planDup"><span class="lg">この案を</span>複製</button><button data-act="planNew">空の案<span class="lg">を追加</span></button><button data-act="planRen">名前<span class="lg">変更</span></button><button data-act="planDel" class="danger"><span class="lg">この案を</span>削除</button>`;
+  $('bar2').innerHTML=`<button data-act="addF">＋家具</button><button data-act="addO">＋障害物<span class="lg">（柱・出っ張り）</span></button><button data-act="addDoor">＋ドア</button><button data-act="addWin">＋窓</button><button data-act="addOut">＋コンセント<span class="lg">・スイッチ</span></button><button data-act="addCl">＋収納<span class="lg">（クローゼット・押入れ）</span></button>`;
+  $('mhint').innerHTML='1本指：移動 ／ 2本指：拡大縮小 ／ 右下のボタン：微調整・回転';
+  $('phint').innerHTML='ドラッグで移動（10mm単位・壁や家具に吸着。窓・ドア・コンセントは壁に沿って移動）／ ホイールで拡大縮小 ／ 何もない所をドラッグで画面移動 ／ 矢印キー：10mm（Shift：100mm、Alt：1mm）／ R：90°回転 ／ Delete：削除';
 }
 function txt(x,y,s,fs,extra=''){return `<text x="${x}" y="${y}" font-size="${fs}" text-anchor="middle" dominant-baseline="middle" paint-order="stroke" stroke="#fff" stroke-width="${fs*0.25}" ${extra}>${esc(s)}</text>`}
 function arcPath(l){
@@ -297,10 +394,10 @@ function drawWallFix(r,x,isSel,fs,px){
   const selStroke=isSel?`stroke="#1e6fd9" stroke-width="${3*px}"`:`stroke="#333" stroke-width="${px}"`;
   if(x.type==='outlet'){
     const c=[p0[0]+W.nx*70,p0[1]+W.ny*70];
-    return `<g data-k="x" data-id="${x.id}" class="hit"><circle cx="${c[0]}" cy="${c[1]}" r="60" fill="#fff" ${selStroke}/>${txt(c[0],c[1],x.kind==='switch'?'ス':'コ',80,'font-weight="bold" fill="#333"')}</g>`;
+    return `<g data-k="x" data-id="${x.id}" class="mv"><circle cx="${c[0]}" cy="${c[1]}" r="${Math.max(60,9*px)}" fill="#fff" ${selStroke}/>${txt(c[0],c[1],x.kind==='switch'?'ス':'コ',Math.max(80,11*px),'font-weight="bold" fill="#333"')}</g>`;
   }
   const p1=P(x.offset+x.width),op=box([p0[0]-W.nx*T,p0[1]-W.ny*T],p1);
-  let s=`<g data-k="x" data-id="${x.id}" class="hit">`;
+  let s=`<g data-k="x" data-id="${x.id}" class="mv">`;
   if(x.type==='window'){
     const m0=[p0[0]-W.nx*T/2,p0[1]-W.ny*T/2],m1=[p1[0]-W.nx*T/2,p1[1]-W.ny*T/2];
     s+=`<rect x="${op.x}" y="${op.y}" width="${op.w}" height="${op.h}" fill="#d6ecff" ${selStroke}/>`;
@@ -322,7 +419,7 @@ function drawWallFix(r,x,isSel,fs,px){
     s+=`<rect x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" fill="${col}" fill-opacity=".18" stroke="${col}" stroke-width="${px}" stroke-dasharray="${4*px} ${3*px}"/>`;
     const q0=[p0[0]+W.nx*30,p0[1]+W.ny*30],q1=[p1[0]+W.nx*30,p1[1]+W.ny*30];
     s+=`<line x1="${q0[0]}" y1="${q0[1]}" x2="${q1[0]}" y2="${q1[1]}" stroke="${col}" stroke-width="${3*px}"/>`;
-  }else{ // 引き違い
+  }else{
     const h=x.width/2;
     [[0,h+50,-30],[h-50,x.width,-80]].forEach(([a,b,o])=>{const q0=P(x.offset+a),q1=P(x.offset+b);
       s+=`<line x1="${q0[0]+W.nx*o}" y1="${q0[1]+W.ny*o}" x2="${q1[0]+W.nx*o}" y2="${q1[1]+W.ny*o}" stroke="${col}" stroke-width="${3*px}"/>`});
@@ -330,31 +427,51 @@ function drawWallFix(r,x,isSel,fs,px){
   if(x.type==='closet'){const c=P(x.offset+x.width/2);s+=txt(c[0]-W.nx*T/2,c[1]-W.ny*T/2,'収納',fs*0.8,`fill="${col}"`)}
   return s+'</g>';
 }
-function dimLine(x1,y1,x2,y2,d,fs,px){
-  const mx=(x1+x2)/2,my=(y1+y2)/2,vert=Math.abs(x1-x2)<0.1,t=6*px;
-  let s=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#1e6fd9" stroke-width="${1.3*px}"/>`;
-  s+=vert?`<line x1="${x1-t}" y1="${y1}" x2="${x1+t}" y2="${y1}" stroke="#1e6fd9" stroke-width="${1.3*px}"/><line x1="${x2-t}" y1="${y2}" x2="${x2+t}" y2="${y2}" stroke="#1e6fd9" stroke-width="${1.3*px}"/>`
-         :`<line x1="${x1}" y1="${y1-t}" x2="${x1}" y2="${y1+t}" stroke="#1e6fd9" stroke-width="${1.3*px}"/><line x1="${x2}" y1="${y2-t}" x2="${x2}" y2="${y2+t}" stroke="#1e6fd9" stroke-width="${1.3*px}"/>`;
-  return s+txt(mx+(vert?fs*1.8:0),my-(vert?0:fs*0.8),r1(d),fs*0.9,'fill="#1e6fd9" font-weight="bold"');
+function dimLine(x1,y1,x2,y2,d,fs,px,col='#1e6fd9',label=null){
+  const mx=(x1+x2)/2,my=(y1+y2)/2,vert=Math.abs(x1-x2)<0.1,t=6*px,sw=1.3*px;
+  let s=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="${sw}"/>`;
+  s+=vert?`<line x1="${x1-t}" y1="${y1}" x2="${x1+t}" y2="${y1}" stroke="${col}" stroke-width="${sw}"/><line x1="${x2-t}" y1="${y2}" x2="${x2+t}" y2="${y2}" stroke="${col}" stroke-width="${sw}"/>`
+         :`<line x1="${x1}" y1="${y1-t}" x2="${x1}" y2="${y1+t}" stroke="${col}" stroke-width="${sw}"/><line x1="${x2}" y1="${y2-t}" x2="${x2}" y2="${y2+t}" stroke="${col}" stroke-width="${sw}"/>`;
+  return s+txt(mx+(vert?fs*1.8:0),my-(vert?0:fs*0.8),label??r1(d),fs*0.9,`fill="${col}" font-weight="bold"`);
 }
-function distances(a,id,fs,px){
-  const r=room(),O=rects(id),cx=a.x+a.w/2,cy=a.y+a.h/2,oy=(o)=>o.y<a.y+a.h-0.5&&a.y<o.y+o.h-0.5,ox=(o)=>o.x<a.x+a.w-0.5&&a.x<o.x+o.w-0.5;
+function distances(a,O,bounds,fs,px){
+  const cx=a.x+a.w/2,cy=a.y+a.h/2,oy=o=>o.y<a.y+a.h-0.5&&a.y<o.y+o.h-0.5,ox=o=>o.x<a.x+a.w-0.5&&a.x<o.x+o.w-0.5;
   let s='',b;
-  b=0;O.forEach(o=>{if(oy(o)&&o.x+o.w<=a.x+0.5)b=Math.max(b,o.x+o.w)});if(a.x-b>0.5)s+=dimLine(b,cy,a.x,cy,a.x-b,fs,px);
-  b=r.w;O.forEach(o=>{if(oy(o)&&o.x>=a.x+a.w-0.5)b=Math.min(b,o.x)});if(b-a.x-a.w>0.5)s+=dimLine(a.x+a.w,cy,b,cy,b-a.x-a.w,fs,px);
-  b=0;O.forEach(o=>{if(ox(o)&&o.y+o.h<=a.y+0.5)b=Math.max(b,o.y+o.h)});if(a.y-b>0.5)s+=dimLine(cx,b,cx,a.y,a.y-b,fs,px);
-  b=r.d;O.forEach(o=>{if(ox(o)&&o.y>=a.y+a.h-0.5)b=Math.min(b,o.y)});if(b-a.y-a.h>0.5)s+=dimLine(cx,a.y+a.h,cx,b,b-a.y-a.h,fs,px);
+  b=bounds.x0;O.forEach(o=>{if(oy(o)&&o.x+o.w<=a.x+0.5)b=Math.max(b,o.x+o.w)});if(a.x-b>0.5)s+=dimLine(b,cy,a.x,cy,a.x-b,fs,px);
+  b=bounds.x1;O.forEach(o=>{if(oy(o)&&o.x>=a.x+a.w-0.5)b=Math.min(b,o.x)});if(b-a.x-a.w>0.5)s+=dimLine(a.x+a.w,cy,b,cy,b-a.x-a.w,fs,px);
+  b=bounds.y0;O.forEach(o=>{if(ox(o)&&o.y+o.h<=a.y+0.5)b=Math.max(b,o.y+o.h)});if(a.y-b>0.5)s+=dimLine(cx,b,cx,a.y,a.y-b,fs,px);
+  b=bounds.y1;O.forEach(o=>{if(ox(o)&&o.y>=a.y+a.h-0.5)b=Math.min(b,o.y)});if(b-a.y-a.h>0.5)s+=dimLine(cx,a.y+a.h,cx,b,b-a.y-a.h,fs,px);
   return s;
 }
-let lastChk={bad:new Set(),msgs:[]};
-function renderCanvas(){
-  const r=room(),p=plan(),px=1/V.s,fs=13*px,chk=check();lastChk=chk;
-  let s=`<defs>
+function wallDims(r,x,fs,px){
+  const W=WI(r,x.wall),w=fixW(x),inset=(x.type==='outlet'?170:60)+fs*1.2,P=o=>[W.ox+W.tx*o+W.nx*inset,W.oy+W.ty*o+W.ny*inset];
+  let s='';const a=P(0),b=P(x.offset),c=P(x.offset+w),d=P(W.L);
+  if(x.offset>0.5)s+=dimLine(a[0],a[1],b[0],b[1],x.offset,fs,px,'#d9480f');
+  if(W.L-x.offset-w>0.5)s+=dimLine(c[0],c[1],d[0],d[1],W.L-x.offset-w,fs,px,'#d9480f');
+  return `<g pointer-events="none">${s}</g>`;
+}
+function defs(px){
+  return `<defs>
   <pattern id="g1" width="100" height="100" patternUnits="userSpaceOnUse"><rect width="100" height="100" fill="#fff"/>${V.s*100>=6?`<path d="M100 0H0V100" fill="none" stroke="#eceff3" stroke-width="${px}"/>`:''}</pattern>
   <pattern id="g2" width="1000" height="1000" patternUnits="userSpaceOnUse"><path d="M1000 0H0V1000" fill="none" stroke="#d3d9e0" stroke-width="${px}"/></pattern>
   <pattern id="hob" width="80" height="80" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="80" height="80" fill="#c9ccd1"/><line x1="0" y1="0" x2="0" y2="80" stroke="#8a8f96" stroke-width="20"/></pattern>
   <pattern id="hbad" width="60" height="60" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="60" stroke="#d62828" stroke-width="12" stroke-opacity=".45"/></pattern>
-  </defs><g transform="translate(${V.tx} ${V.ty}) scale(${V.s})">`;
+  <pattern id="hbad2" width="24" height="24" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="24" stroke="#d62828" stroke-width="5" stroke-opacity=".45"/></pattern>
+  <pattern id="hwarn2" width="24" height="24" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="24" stroke="#e8a200" stroke-width="5" stroke-opacity=".5"/></pattern>
+  </defs>`;
+}
+function updatePad(){
+  const mv=movable();$('pad').hidden=!mv;
+  $('padRot').style.visibility=mv&&(UI.mode==='shelf'||sel.k==='f')?'visible':'hidden';
+  $('padStep').textContent=padStep+'mm';
+  const vertOk=!(mv&&UI.mode==='plan'&&sel.k==='x'&&['top','bottom'].includes(selItem().wall));
+  const horOk=!(mv&&UI.mode==='plan'&&sel.k==='x'&&['left','right'].includes(selItem().wall));
+  $('padU').style.visibility=$('padD').style.visibility=vertOk?'visible':'hidden';
+  document.querySelectorAll('#pad [data-dy="0"]').forEach(b=>b.style.visibility=horOk?'visible':'hidden');
+}
+function renderCanvas(){
+  const r=room(),p=plan(),px=1/V.s,fs=13*px,chk=checkPlan();lastChk=chk;
+  let s=defs(px)+`<g transform="translate(${V.tx} ${V.ty}) scale(${V.s})">`;
   s+=`<rect x="${-T}" y="${-T}" width="${r.w+2*T}" height="${r.d+2*T}" fill="#6b6f75"/>`;
   s+=`<rect x="0" y="0" width="${r.w}" height="${r.d}" fill="url(#g1)"/><rect x="0" y="0" width="${r.w}" height="${r.d}" fill="url(#g2)"/>`;
   s+=txt(r.w/2,-T-fs*1.2,`${r.w}`,fs,'fill="#333" font-weight="bold"');
@@ -365,73 +482,225 @@ function renderCanvas(){
     if(o.w*V.s>30&&o.d*V.s>16)s+=txt(o.x+o.w/2,o.y+o.d/2,o.name,fs*0.85,'fill="#333"');
     s+='</g>';
   });
-  r.fixtures.filter(x=>x.type!=='obstacle').forEach(x=>{s+=drawWallFix(r,x,isSel(x.id),fs,px)});
+  r.fixtures.filter(x=>x.type!=='obstacle'&&x.type!=='outlet').forEach(x=>{s+=drawWallFix(r,x,isSel(x.id),fs,px)});
   p.furniture.forEach(f=>{
     const a=fp(f),bad=chk.bad.has(f.id);
     s+=`<g data-k="f" data-id="${f.id}" class="mv"><rect x="${a.x}" y="${a.y}" width="${a.w}" height="${a.h}" fill="${esc(f.color)}" fill-opacity=".88" stroke="${bad?'#d62828':'#333'}" stroke-width="${(bad?2.5:1)*px}"/>`;
     if(bad)s+=`<rect x="${a.x}" y="${a.y}" width="${a.w}" height="${a.h}" fill="url(#hbad)"/>`;
     if(a.w*V.s>36&&a.h*V.s>18){
       const two=a.h*V.s>34;
-      s+=txt(a.x+a.w/2,a.y+a.h/2-(two?fs*0.55:0),f.name,fs,'fill="#111" font-weight="bold"');
+      s+=txt(a.x+a.w/2,a.y+a.h/2-(two?fs*0.55:0),(f.shelf?'▤ ':'')+f.name,fs,'fill="#111" font-weight="bold"');
       if(two)s+=txt(a.x+a.w/2,a.y+a.h/2+fs*0.7,`${f.w}×${f.d} H${f.h}`,fs*0.75,'fill="#333"');
     }
     s+='</g>';
   });
-  const it=getItem(sel);
+  r.fixtures.filter(x=>x.type==='outlet').forEach(x=>{s+=drawWallFix(r,x,isSel(x.id),fs,px)});
+  const it=selItem();
   if(it&&(sel.k==='f'||sel.k==='o')){
     const a=sel.k==='f'?fp(it):ob(it),m=4*px;
     s+=`<rect x="${a.x-m}" y="${a.y-m}" width="${a.w+2*m}" height="${a.h+2*m}" fill="none" stroke="#1e6fd9" stroke-width="${2*px}" stroke-dasharray="${6*px} ${4*px}" pointer-events="none"/>`;
-    s+=`<g pointer-events="none">${distances(a,it.id,fs,px)}</g>`;
+    s+=`<g pointer-events="none">${distances(a,rects(it.id),{x0:0,x1:r.w,y0:0,y1:r.d},fs,px)}</g>`;
   }
+  if(it&&sel.k==='x')s+=wallDims(r,it,fs,px);
   svg.innerHTML=s+'</g>';
-  const mov=!!(it&&(sel.k==='f'||sel.k==='o'));
-  document.getElementById('pad').hidden=!mov;
-  document.getElementById('padRot').style.visibility=mov&&sel.k==='f'?'visible':'hidden';
-  document.getElementById('padStep').textContent=padStep+'mm';
+  updatePad();
 }
-function field(label,k,v,type='number'){return `<label>${label}<input data-k="${k}" type="${type}" value="${esc(v)}"${type==='number'?' step="10"':''}></label>`}
+function field(label,k,v,type='number',ph=''){return `<label>${label}<input data-k="${k}" type="${type}" value="${esc(v)}"${type==='number'?' step="10"':''}${ph?` placeholder="${esc(ph)}"`:''}></label>`}
 function pick(label,k,v,opts){return `<label>${label}<select data-k="${k}">${Object.entries(opts).map(([a,b])=>`<option value="${a}" ${a===v?'selected':''}>${b}</option>`).join('')}</select></label>`}
+function checkHtml(){
+  return `<h3>チェック結果</h3>`+(lastChk.msgs.length?`<ul class="lst ng">${lastChk.msgs.map(m=>`<li class="${m.c}" ${m.id?`data-act="selF" data-id="${m.id}"`:''}>${m.c==='ng'?'⚠':'△'} ${esc(m.t)}</li>`).join('')}</ul>`:'<div class="ok">✓ 問題は見つかりませんでした</div>');
+}
 function renderPanel(){
-  const r=room(),p=plan(),it=getItem(sel);let h='';
+  const r=room(),p=plan(),it=selItem();let h='';
   if(!it){
     sel=null;
     h+=`<h3>部屋の設定</h3><div data-t="room">${field('部屋の名前','name',r.name,'text')}${field('横幅（左右）mm','w',r.w)}${field('奥行き（上下）mm','d',r.d)}</div>`;
     h+=`<div class="btns"><button data-act="delRoom" class="danger">この部屋を削除</button></div>`;
     h+=`<h3>家具一覧（${esc(p.name)}）</h3>`;
     h+=p.furniture.length?`<ul class="lst">${p.furniture.map(f=>`<li data-act="selF" data-id="${f.id}"><span class="sw" style="background:${esc(f.color)}"></span>${esc(f.name)}　${f.w}×${f.d}</li>`).join('')}</ul>`:'<div class="note">まだ家具がありません。「＋家具」で追加してください。</div>';
-    h+=`<h3>使い方</h3><div class="note">・部屋の寸法を入れ、柱や出っ張りは「障害物」で置きます。L字の部屋は、欠けた角に障害物を置いて表します。<br>・ドア・窓・コンセント・収納の「位置」は、上下の壁なら左端から、左右の壁なら上端からの距離です。<br>・収納の本体が部屋の中に食い込んでいる場合は、本体部分を障害物で置いてください。<br>・家具を選ぶと、壁や他の家具までの距離（mm）が青で表示されます。<br>・データはこのブラウザに自動保存されます。区切りのいいところで「ファイルに書き出す」で保存しておくと安心です。</div>`;
+    h+=`<h3>使い方</h3><div class="note">・部屋の寸法を入れ、柱や出っ張りは「障害物」で置きます。L字の部屋は、欠けた角に障害物を置いて表します。<br>・窓・ドア・コンセント・収納は、ドラッグすると壁に沿って動きます。別の壁に近づけるとその壁に移ります。選ぶと両端からの距離がオレンジで出ます。<br>・家具を選ぶと、壁や他の家具までの距離（mm）が青で表示されます。<br>・本棚などを選んで「棚の中を編集」を押すと、棚の中の配置を考えられます。</div>`;
   }else if(sel.k==='f'){
     h+=`<h3>家具</h3><div data-t="sel">${field('名前','name',it.name,'text')}<label>色<input data-k="color" type="color" value="${esc(it.color)}"></label>${field('幅 mm','w',it.w)}${field('奥行き mm','d',it.d)}${field('高さ mm','h',it.h)}${field('左の壁から mm','x',it.x)}${field('上の壁から mm','y',it.y)}</div>`;
     h+=`<div class="note">向き：${it.rot?'90°回転':'そのまま'}</div><div class="btns"><button data-act="rot">90°回転 (R)</button><button data-act="dup">複製</button><button data-act="del" class="danger">削除</button></div>`;
+    h+=`<div class="btns"><button data-act="editShelf" class="primary">▤ 棚の中を編集</button></div>`;
     if(S.rooms.length>1)h+=`<label>別の部屋へ移動<select id="mvRoom">${S.rooms.map((rr,i)=>i===S.cur?'':`<option value="${i}">${esc(rr.name)}</option>`).join('')}</select></label><div class="btns"><button data-act="moveRoom">移動する</button></div>`;
   }else if(it.type==='obstacle'){
     h+=`<h3>障害物</h3><div data-t="sel">${field('名前','name',it.name,'text')}${field('幅（左右）mm','w',it.w)}${field('奥行き（上下）mm','d',it.d)}${field('左の壁から mm','x',it.x)}${field('上の壁から mm','y',it.y)}</div><div class="btns"><button data-act="del" class="danger">削除</button></div>`;
   }else{
     const ttl={door:'ドア',window:'窓',outlet:'コンセント・スイッチ',closet:'収納（クローゼット・押入れ）'}[it.type];
-    h+=`<h3>${ttl}</h3><div data-t="sel">${pick('取り付ける壁','wall',it.wall,WALLS)}${field('位置 mm','offset',it.offset)}`;
+    const W=WI(r,it.wall),rest=W.L-it.offset-fixW(it),st=['top','bottom'].includes(it.wall)?['左端','右端']:['上端','下端'];
+    h+=`<h3>${ttl}</h3><div class="note">ドラッグで壁に沿って動かせます。<br>${st[0]}から <b>${it.offset}</b> mm ／ ${st[1]}から <b>${r1(rest)}</b> mm</div><div data-t="sel">${pick('取り付ける壁','wall',it.wall,WALLS)}${field(`位置（${st[0]}から）mm`,'offset',it.offset)}`;
     if(it.type!=='outlet')h+=field('幅 mm','width',it.width);
     if(it.type==='window')h+=field('腰高（床から窓下）mm','sill',it.sill);
     if(it.type==='outlet')h+=pick('種類','kind',it.kind,{outlet:'コンセント',switch:'スイッチ'});
     if(it.type==='door'||it.type==='closet'){
       h+=pick('種類','kind',it.kind,{hinged:'開き戸（片開き）',double:'両開き',sliding:'引き戸（片引き）',hikichigai:'引き違い'});
-      if(it.kind==='hinged')h+=pick('吊り元','hinge',it.hinge,{start:'起点側（左／上）',end:'反対側（右／下）'});
+      if(it.kind==='hinged')h+=pick('吊り元','hinge',it.hinge,{start:`${st[0]}側`,end:`${st[1]}側`});
       if(it.type==='door'&&(it.kind==='hinged'||it.kind==='double'))h+=pick('開く向き','swing',it.swing,{in:'内開き（この部屋側）',out:'外開き'});
-      if(it.kind==='sliding')h+=pick('引き込む向き','slide',it.slide,{start:'起点側（左／上）',end:'反対側（右／下）'});
+      if(it.kind==='sliding')h+=pick('引き込む向き','slide',it.slide,{start:`${st[0]}側`,end:`${st[1]}側`});
     }
-    h+=`</div><div class="note">位置：上下の壁は左端から、左右の壁は上端からの距離です。</div><div class="btns"><button data-act="del" class="danger">削除</button></div>`;
+    h+=`</div><div class="btns"><button data-act="del" class="danger">削除</button></div>`;
   }
-  h+=`<h3>チェック結果</h3>`;
-  h+=lastChk.msgs.length?`<ul class="lst ng">${lastChk.msgs.map(m=>`<li data-act="selF" data-id="${m.id}">⚠ ${esc(m.t)}</li>`).join('')}</ul>`:'<div class="ok">✓ 問題は見つかりませんでした</div>';
-  panel.innerHTML=h;
+  panel.innerHTML=h+checkHtml();
 }
 
-/* ---------- 操作 ---------- */
+/* ---------- 棚の描画 ---------- */
+function renderShelfBars(){
+  const L=shelfList(),c=shelfCtx();
+  $('bar1').innerHTML=L.length?`<b>棚：</b><select id="shelfSel">${L.map(x=>`<option value="${esc(refKey(x.ref))}" ${c&&refKey(x.ref)===refKey(c.ref)?'selected':''}>${esc(x.label)}</option>`).join('')}</select><button data-act="addShelfS">＋単独の棚<span class="lg">を作る</span></button>`
+    :`<button data-act="addShelfS">＋単独の棚を作る</button><span class="hint">間取りの家具を選んで「棚の中を編集」でも作れます</span>`;
+  $('bar2').innerHTML=c?`<button data-act="addItem">＋物<span class="lg">（かご・小物）</span>を${esc(lvName(c,UI.level))}に置く</button><button data-act="addLevel">＋段を追加</button>${c.linked?`<button data-act="gotoPlan">間取りで見る</button>`:''}`:'';
+  $('mhint').innerHTML='段をタップで選択 ／ 1本指：移動 ／ 2本指：拡大縮小 ／ 右下：←→左右・↑↓奥と手前';
+  $('phint').innerHTML='正面図：左右と段を決める（物の上に乗せると重ね置き）／ 上から見た図：手前と奥を決める ／ 段をクリックで選択 ／ 矢印キー：←→左右、↑↓奥・手前 ／ R：向きを変える ／ Delete：削除';
+}
+function renderShelf(){
+  const c=shelfCtx(),px=1/V.s,fs=13*px;
+  if(!c){svg.innerHTML=`<text x="20" y="40" font-size="14" fill="#667">棚がまだありません</text>`;lastChk={bad:new Set(),warn:new Set(),msgs:[]};updatePad();return}
+  const g=SG(c),chk=checkShelf(c);lastChk=chk;
+  const isSel=id=>sel&&sel.id===id;
+  let s=defs(px)+`<g transform="translate(${V.tx} ${V.ty}) scale(${V.s})">`;
+  // 正面図
+  s+=txt(g.W/2,-fs*2.2,`正面図　${c.holder.name}（外寸 ${c.holder.w}×${c.holder.d}×H${c.holder.h}）`,fs,'fill="#333" font-weight="bold"');
+  s+=`<rect x="0" y="0" width="${g.W}" height="${g.Ht}" fill="#d8c3a0" stroke="#8a7350" stroke-width="${px}"/>`;
+  c.sh.levels.forEach((lv,li)=>{
+    const top=g.Ht-g.base[li]-lv.h,on=li===UI.level;
+    s+=`<rect data-k="lv" data-i="${li}" class="hit" x="${g.t}" y="${top}" width="${g.iw}" height="${lv.h}" fill="${on?'#f3f8ff':'#fbfaf7'}" stroke="${on?'#1e6fd9':'none'}" stroke-width="${2*px}"/>`;
+    (lv.parts||[]).forEach(p=>{s+=`<rect x="${g.t+p}" y="${top}" width="${g.t}" height="${lv.h}" fill="#d8c3a0" stroke="#8a7350" stroke-width="${px*0.6}" pointer-events="none"/>`});
+    s+=txt(-fs*3.6,top+lv.h/2,`${lvName(c,li).replace('上から','')}`,fs*0.85,`fill="${on?'#1e6fd9':'#556'}" font-weight="bold"`);
+    s+=txt(-fs*3.6,top+lv.h/2+fs*1.1,`H${lv.h}`,fs*0.75,'fill="#778"');
+    const items=lv.items.slice().sort((a,b)=>a.zb-b.zb);
+    items.forEach(it=>{
+      const Y=itemY(lv,it),x=g.t+it.x,y=top+lv.h-Y-it.h,bad=chk.bad.has(it.id),wn=chk.warn.has(it.id);
+      const behind=lv.items.some(o=>o!==it&&o.zb>=it.zb+it.d-0.5&&o.x<it.x+it.w-0.5&&it.x<o.x+o.w-0.5&&itemY(lv,o)<Y+it.h-0.5&&Y<itemY(lv,o)+o.h-0.5);
+      s+=`<g data-k="sf" data-id="${it.id}" class="mv"><rect x="${x}" y="${y}" width="${it.w}" height="${it.h}" fill="${esc(it.color)}" fill-opacity="${behind?.35:.9}" stroke="${bad?'#d62828':wn?'#e8a200':'#333'}" stroke-width="${(bad||wn?2.5:1)*px}" ${behind?`stroke-dasharray="${5*px} ${3*px}"`:''}/>`;
+      if(bad||wn)s+=`<rect x="${x}" y="${y}" width="${it.w}" height="${it.h}" fill="url(#${bad?'hbad2':'hwarn2'})" pointer-events="none"/>`;
+      if(it.w*V.s>34&&it.h*V.s>16)s+=txt(x+it.w/2,y+it.h/2,(behind?'(奥) ':'')+it.name,fs*0.85,'fill="#111"');
+      s+='</g>';
+    });
+  });
+  // 上から見た図
+  const lv=c.sh.levels[UI.level],oy=g.Ht+fs*6;
+  if(lv){
+    s+=txt(g.W/2,oy-fs*3,`上から見た図（${lvName(c,UI.level)}）`,fs,'fill="#333" font-weight="bold"');
+    s+=txt(g.W/2,oy-fs*1.2,'奥',fs*0.85,'fill="#778"');
+    s+=`<rect x="0" y="${oy-g.t}" width="${g.W}" height="${g.idp+g.t}" fill="#d8c3a0" stroke="#8a7350" stroke-width="${px}"/>`;
+    s+=`<rect data-k="lv" data-i="${UI.level}" x="${g.t}" y="${oy}" width="${g.iw}" height="${g.idp}" fill="#fbfaf7"/>`;
+    (lv.parts||[]).forEach(p=>{s+=`<rect x="${g.t+p}" y="${oy}" width="${g.t}" height="${g.idp}" fill="#d8c3a0" stroke="#8a7350" stroke-width="${px*0.6}" pointer-events="none"/>`});
+    s+=`<line x1="${-fs}" y1="${oy+g.idp}" x2="${g.W+fs}" y2="${oy+g.idp}" stroke="#8a7350" stroke-width="${2*px}" stroke-dasharray="${6*px} ${4*px}"/>`;
+    s+=txt(g.W/2,oy+g.idp+fs*1.3,`手前（奥行き内寸 ${r1(g.idp)}）`,fs*0.85,'fill="#778"');
+    lv.items.slice().sort((a,b)=>itemY(lv,a)-itemY(lv,b)).forEach(it=>{
+      const x=g.t+it.x,y=oy+it.zb,bad=chk.bad.has(it.id),wn=chk.warn.has(it.id),st=!!it.on;
+      s+=`<g data-k="st" data-id="${it.id}" class="mv"><rect x="${x}" y="${y}" width="${it.w}" height="${it.d}" fill="${esc(it.color)}" fill-opacity=".85" stroke="${bad?'#d62828':wn?'#e8a200':'#333'}" stroke-width="${(bad||wn?2.5:1)*px}" ${st?`stroke-dasharray="${5*px} ${3*px}"`:''}/>`;
+      if(it.w*V.s>34&&it.d*V.s>16)s+=txt(x+it.w/2,y+it.d/2,it.name+(st?'（重ね）':''),fs*0.85,'fill="#111"');
+      s+='</g>';
+    });
+  }
+  // 選択
+  const f=sel&&findShelfItem(c,sel.id);
+  if(f){
+    const {lv:L,li,it}=f,top=g.Ht-g.base[li]-L.h,Y=itemY(L,it),x=g.t+it.x,y=top+L.h-Y-it.h,m=3*px;
+    s+=`<rect x="${x-m}" y="${y-m}" width="${it.w+2*m}" height="${it.h+2*m}" fill="none" stroke="#1e6fd9" stroke-width="${2*px}" stroke-dasharray="${6*px} ${4*px}" pointer-events="none"/>`;
+    // 正面：左右の隙間と上までの残り
+    const others=L.items.filter(o=>o.id!==it.id).map(o=>({x:g.t+o.x,y:top+L.h-itemY(L,o)-o.h,w:o.w,h:o.h}));
+    (L.parts||[]).forEach(p=>others.push({x:g.t+p,y:top,w:g.t,h:L.h}));
+    s+=`<g pointer-events="none">${distances({x,y,w:it.w,h:it.h},others,{x0:g.t,x1:g.t+g.iw,y0:top,y1:top+L.h},fs,px)}</g>`;
+    if(li===UI.level){
+      const ty=oy+it.zb;
+      s+=`<rect x="${x-m}" y="${ty-m}" width="${it.w+2*m}" height="${it.d+2*m}" fill="none" stroke="#1e6fd9" stroke-width="${2*px}" stroke-dasharray="${6*px} ${4*px}" pointer-events="none"/>`;
+      const ot=L.items.filter(o=>o.id!==it.id&&itemY(L,o)<Y+it.h-0.5&&Y<itemY(L,o)+o.h-0.5).map(o=>({x:g.t+o.x,y:oy+o.zb,w:o.w,h:o.d}));
+      (L.parts||[]).forEach(p=>ot.push({x:g.t+p,y:oy,w:g.t,h:g.idp}));
+      s+=`<g pointer-events="none">${distances({x,y:ty,w:it.w,h:it.d},ot,{x0:g.t,x1:g.t+g.iw,y0:oy,y1:oy+Math.max(g.idp,it.zb+it.d)},fs,px)}</g>`;
+    }
+  }
+  svg.innerHTML=s+'</g>';
+  updatePad();
+}
+function renderShelfPanel(){
+  const c=shelfCtx();let h='';
+  if(!c){panel.innerHTML='<div class="note">棚がまだありません。</div>';return}
+  const g=SG(c),f=sel&&findShelfItem(c,sel.id);
+  if(f){
+    const {lv,li,it}=f,Y=itemY(lv,it),gap=lv.h-Y-it.h;
+    h+=`<h3>棚に置く物</h3><div class="note">${esc(lvName(c,li))}${it.on?'（重ね置き）':''}　／　上まで残り <b style="color:${gap<0?'#b42318':'#1e6fd9'}">${r1(gap)}</b> mm</div>`;
+    h+=`<div data-t="si">${field('名前','name',it.name,'text')}<label>色<input data-k="color" type="color" value="${esc(it.color)}"></label>${field('幅 mm','w',it.w)}${field('奥行き mm','d',it.d)}${field('高さ mm','h',it.h)}${field('左から mm','x',it.x)}${field('奥から mm','zb',it.zb)}</div>`;
+    h+=`<label>置く段<select id="itemLv">${c.sh.levels.map((_,i)=>`<option value="${i}" ${i===li?'selected':''}>${lvName(c,i)}</option>`).reverse().join('')}</select></label>`;
+    h+=`<div class="btns">${it.on?'<button data-act="unstack">重ね置きをやめる</button>':''}<button data-act="rot">向きを変える (R)</button><button data-act="dup">複製</button><button data-act="del" class="danger">削除</button></div>`;
+  }else{
+    sel=null;
+    h+=`<h3>棚の設定</h3>`;
+    if(c.linked)h+=`<div class="note">間取りの家具「${esc(c.holder.name)}」とつながっています。外寸（${c.holder.w}×${c.holder.d}×H${c.holder.h}）は間取り側で変更します。</div>`;
+    else h+=`<div data-t="sh">${field('名前','name',c.holder.name,'text')}${field('外寸 幅 mm','w',c.holder.w)}${field('外寸 奥行き mm','d',c.holder.d)}${field('外寸 高さ mm','h',c.holder.h)}</div>`;
+    h+=`<div data-t="shs">${field('板の厚み mm','t',c.sh.t)}${field('内寸 幅 mm','iw',c.sh.iw??'','number',`自動 ${r1(c.holder.w-2*c.sh.t)}`)}${field('内寸 奥行き mm','idp',c.sh.idp??'','number',`自動 ${c.holder.d}`)}</div>`;
+    h+=`<div class="note">内寸は空欄なら外寸と板厚から自動計算。実測値を入れると上書きします。</div>`;
+    h+=`<h3>段（内寸の高さ・仕切り）</h3><table class="lv"><tr><td></td><td>高さmm</td><td>仕切り（左からmm）</td><td></td></tr>`;
+    for(let li=c.sh.levels.length-1;li>=0;li--){const lv=c.sh.levels[li];
+      h+=`<tr class="${li===UI.level?'on':''}"><td><a href="#" data-act="selLv" data-i="${li}">${lvName(c,li).replace('上から','')}</a></td><td><input type="number" step="10" data-lv="${li}" data-lk="h" value="${lv.h}"></td><td><input class="pt" data-lv="${li}" data-lk="parts" value="${esc((lv.parts||[]).join(','))}" placeholder="例 400,800"></td><td><button data-act="delLevel" data-i="${li}" class="danger" title="この段を削除">×</button></td></tr>`}
+    h+=`</table><div class="note">段の合計 ${r1(g.Ht)}mm ／ 外寸高さ ${c.holder.h}mm。仕切りはカンマ区切りで複数入れられます。</div>`;
+    const lv=c.sh.levels[UI.level];
+    h+=`<h3>${esc(lvName(c,UI.level))}の物</h3>`+(lv&&lv.items.length?`<ul class="lst">${lv.items.map(it=>`<li data-act="selF" data-id="${it.id}"><span class="sw" style="background:${esc(it.color)}"></span>${esc(it.name)}　${it.w}×${it.d}×H${it.h}</li>`).join('')}</ul>`:'<div class="note">まだ何もありません。「＋物」で追加するか、候補リストから「棚に置く」で追加できます。</div>');
+    h+=`<div class="btns">${c.linked?'':'<button data-act="delShelfS" class="danger">この棚を削除</button>'}${c.linked?'<button data-act="delShelfLink" class="danger">棚の中のデータを削除</button>':''}</div>`;
+  }
+  panel.innerHTML=h+checkHtml();
+}
+
+/* ---------- 候補リスト ---------- */
+const KIND={furn:'家具',small:'かご・小物'},STAT={cand:'候補',buy:'購入済み',skip:'見送り'},SB={cand:'b-cand',buy:'b-buy',skip:'b-skip'};
+function renderCands(){
+  const v=$('candView');let h='';
+  h+=`<div class="ctop"><button class="primary big" data-act="candNew">＋ 記録する</button>${['all','cand','buy','skip'].map(k=>`<button class="chip ${UI.cfilter===k?'on':''}" data-act="cfilter" data-k="${k}">${k==='all'?'すべて':STAT[k]}</button>`).join('')}</div>`;
+  if(candEdit){
+    const e=candEdit,ph=e.photoData||(e.photo&&PHOTOS[e.photo]);
+    h+=`<div class="form" id="cform"><div class="phbox"><div class="ph">${ph?`<img src="${ph}" alt="">`:'写真なし'}</div><div><button data-act="photoPick">📷 写真を撮る／選ぶ</button>${ph?'<div class="btns"><button data-act="photoDel" class="danger">写真を外す</button></div>':''}</div></div>
+    <label>名前<input data-c="name" value="${esc(e.name)}" placeholder="例：無印のソフトボックス"></label>
+    <label>種類<select data-c="kind">${Object.entries(KIND).map(([k,v])=>`<option value="${k}" ${e.kind===k?'selected':''}>${v}</option>`).join('')}</select></label>
+    <label>幅×奥行×高さ<span class="dims"><input type="number" data-c="w" value="${e.w??''}" placeholder="幅"><input type="number" data-c="d" value="${e.d??''}" placeholder="奥行"><input type="number" data-c="h" value="${e.h??''}" placeholder="高さ"></span></label>
+    <label>値段（円）<input type="number" data-c="price" value="${e.price??''}"></label>
+    <label>お店<input data-c="store" value="${esc(e.store)}"></label>
+    <label>メモ<textarea data-c="memo">${esc(e.memo)}</textarea></label>
+    <label>状態<select data-c="status">${Object.entries(STAT).map(([k,v])=>`<option value="${k}" ${e.status===k?'selected':''}>${v}</option>`).join('')}</select></label>
+    <div class="btns"><button class="primary" data-act="candSave">保存</button><button data-act="candCancel">キャンセル</button>${e.isNew?'':'<button data-act="candDel" class="danger">削除</button>'}</div>
+    <div class="note">寸法はmmです。</div></div>`;
+  }
+  const L=S.cands.filter(x=>UI.cfilter==='all'||x.status===UI.cfilter).sort((a,b)=>(b.at||0)-(a.at||0));
+  h+=L.length?`<div class="cards">${L.map(x=>{const ph=x.photo&&PHOTOS[x.photo];
+    return `<div class="card"><div class="ph">${ph?`<img src="${ph}" alt="">`:'写真なし'}</div><div class="bd"><div class="nm">${esc(x.name)}<span class="badge ${SB[x.status]||''}">${STAT[x.status]||''}</span></div>
+    <div class="mt">${KIND[x.kind]||''}　${x.w||'?'}×${x.d||'?'}×H${x.h||'?'}${x.price?`<br>¥${Number(x.price).toLocaleString()}`:''}${x.store?`　${esc(x.store)}`:''}${x.memo?`<br>${esc(x.memo)}`:''}</div>
+    <div class="btns"><button data-act="candToPlan" data-id="${x.id}">間取りに置く</button><button data-act="candToShelf" data-id="${x.id}">棚に置く</button><button data-act="candEditBtn" data-id="${x.id}">編集</button></div></div></div>`}).join('')}</div>`
+    :`<div class="note">${S.cands.length?'この条件の候補はありません。':'お店で見つけた家具やかごを「＋記録する」で残しておけます。寸法を入れておけば、そのまま間取りや棚に置いて確かめられます。'}</div>`;
+  v.innerHTML=h;
+}
+function readCandForm(){
+  if(!candEdit)return;
+  document.querySelectorAll('#cform [data-c]').forEach(el=>{const k=el.dataset.c;let v=el.value;if(['w','d','h','price'].includes(k))v=v===''?null:Math.round(Number(v));candEdit[k]=v});
+}
+function shrinkPhoto(file){
+  return new Promise((res,rej)=>{
+    const url=URL.createObjectURL(file),img=new Image();
+    img.onload=()=>{const m=640,k=Math.min(1,m/Math.max(img.width,img.height)),cv=document.createElement('canvas');
+      cv.width=Math.round(img.width*k);cv.height=Math.round(img.height*k);cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);
+      URL.revokeObjectURL(url);res(cv.toDataURL('image/jpeg',0.72))};
+    img.onerror=()=>{URL.revokeObjectURL(url);rej()};img.src=url;
+  });
+}
+$('photoIn').addEventListener('change',async e=>{
+  const f=e.target.files[0];e.target.value='';if(!f||!candEdit)return;
+  readCandForm();try{candEdit.photoData=await shrinkPhoto(f);candEdit.photoRemoved=false}catch(err){note('この写真は読み込めませんでした。')}renderCands();
+});
+
+/* ---------- 操作（キャンバス） ---------- */
 function toMM(e){const b=svg.getBoundingClientRect();return {x:(e.clientX-b.left-V.tx)/V.s,y:(e.clientY-b.top-V.ty)/V.s}}
 function fit(){
-  const r=room(),b=svg.getBoundingClientRect(),pad=T+700;
-  V.s=Math.max(0.01,Math.min((b.width-20)/(r.w+pad*2),(b.height-20)/(r.d+pad*2)));
+  const b=svg.getBoundingClientRect();if(!b.width)return;
+  let w,h;
+  if(UI.mode==='shelf'){const c=shelfCtx();if(!c){V={s:1,tx:0,ty:0};renderShelf();return}
+    const g=SG(c);
+    V.s=Math.max(0.02,Math.min(3,(b.width-130)/g.W,(b.height-190)/(g.Ht+g.idp)));
+    V.tx=(b.width-g.W*V.s)/2+25;V.ty=55;renderShelf();return}
+  const r=room(),pad=T+700;w=r.w+pad*2;h=r.d+pad*2;
+  V.s=Math.max(0.01,Math.min((b.width-20)/w,(b.height-20)/h));
   V.tx=(b.width-r.w*V.s)/2;V.ty=(b.height-r.d*V.s)/2;renderCanvas();
 }
+const renderView=()=>UI.mode==='shelf'?renderShelf():renderCanvas();
 function pickNear(v,c,th){let b=v,bd=th;c.forEach(t=>{const d=Math.abs(t-v);if(d<=bd){bd=d;b=t}});return b}
 function magnet(it,nx,ny){
   const r=room(),a=sel.k==='f'?fp(it):ob(it),w=a.w,h=a.h,th=12/V.s,O=rects(it.id);
@@ -441,6 +710,18 @@ function magnet(it,nx,ny){
   ny=pickNear(ny,cy,th);
   return [nx,ny];
 }
+function wallDrag(it,m){
+  const r=room(),cand=[['top',Math.abs(m.y)],['bottom',Math.abs(m.y-r.d)],['left',Math.abs(m.x)],['right',Math.abs(m.x-r.w)]].sort((a,b)=>a[1]-b[1]);
+  const wall=cand[0][0],W=WI(r,wall),w=fixW(it);
+  const along=W.tx?m.x:m.y;let off=s10(along-drag.grab);
+  off=Math.max(0,Math.min(W.L-w,off));
+  if(it.wall!==wall||it.offset!==off){it.wall=wall;it.offset=off;return true}return false;
+}
+function levelAt(c,g,yScreen){const Yb=g.Ht-yScreen;for(let i=0;i<c.sh.levels.length;i++){if(Yb>=g.base[i]-g.t/2&&Yb<g.base[i]+c.sh.levels[i].h+g.t/2)return i}return Yb<g.base[0]?0:c.sh.levels.length-1}
+function moveToLevel(c,from,to,ids){
+  const A=c.sh.levels[from].items,B=c.sh.levels[to].items;
+  const mv=A.filter(o=>ids.has(o.id));c.sh.levels[from].items=A.filter(o=>!ids.has(o.id));B.push(...mv);
+}
 const ptrs=new Map();
 function pinchInfo(){const [a,b]=[...ptrs.values()],r=svg.getBoundingClientRect();return {d:Math.hypot(a.x-b.x,a.y-b.y)||1,mx:(a.x+b.x)/2-r.left,my:(a.y+b.y)/2-r.top}}
 svg.addEventListener('pointerdown',e=>{
@@ -448,102 +729,190 @@ svg.addEventListener('pointerdown',e=>{
   svg.setPointerCapture(e.pointerId);
   ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
   if(ptrs.size>=2){
-    if(drag&&drag.type==='move'){const it=getItem(sel);if(it){it.x=drag.ox;it.y=drag.oy}}
-    if(ptrs.size===2){const p=pinchInfo();drag={type:'pinch',d0:p.d,s0:V.s,ax:(p.mx-V.tx)/V.s,ay:(p.my-V.ty)/V.s};renderCanvas()}
+    if(drag&&drag.restore)drag.restore();
+    if(ptrs.size===2){const p=pinchInfo();drag={type:'pinch',d0:p.d,s0:V.s,ax:(p.mx-V.tx)/V.s,ay:(p.my-V.ty)/V.s};renderView()}
     return;
   }
-  const t=e.target.closest('[data-k]');
+  const t=e.target.closest('[data-k]'),m=toMM(e);
   if(t&&e.button===0){
-    sel={k:t.dataset.k,id:t.dataset.id};
-    const it=getItem(sel),m=toMM(e);
-    if(sel.k==='f'||sel.k==='o')drag={type:'move',sx:m.x,sy:m.y,ox:it.x,oy:it.y,moved:false};
+    const k=t.dataset.k;
+    if(k==='lv'){UI.level=Number(t.dataset.i);sel=null;drag={type:'pan',sx:e.clientX,sy:e.clientY,tx:V.tx,ty:V.ty,tap:true,lvTap:true};render();return}
+    sel={k,id:t.dataset.id};
+    const before=JSON.stringify(S);
+    if(UI.mode==='plan'){
+      const it=selItem();
+      if(k==='x'){const W=WI(room(),it.wall);drag={type:'wall',grab:(W.tx?m.x:m.y)-it.offset,moved:false}}
+      else drag={type:'move',sx:m.x,sy:m.y,ox:it.x,oy:it.y,moved:false};
+      drag.restore=()=>{S=JSON.parse(before)};
+    }else{
+      const c=shelfCtx(),f=findShelfItem(c,sel.id);
+      UI.level=f.li;
+      const g=SG(c),top=g.Ht-g.base[f.li]-f.lv.h,Y=itemY(f.lv,f.it),bottomScr=top+f.lv.h-Y;
+      drag={type:k==='sf'?'sfront':'stop',sx:m.x,sy:m.y,ox:f.it.x,oz:f.it.zb,grabDy:m.y-bottomScr,moved:false,pos:{},restore:()=>{S=JSON.parse(before)}};
+      // 子（重ねた物）の元位置
+      subtree(f.lv,f.it.id).forEach(id=>{const o=f.lv.items.find(q=>q.id===id);drag.pos[id]=[o.x,o.zb]});
+    }
+    render();
   }else{
     drag={type:'pan',sx:e.clientX,sy:e.clientY,tx:V.tx,ty:V.ty,tap:e.button===0};
-    return;
   }
-  render();
 });
 svg.addEventListener('pointermove',e=>{
   if(ptrs.has(e.pointerId))ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
   if(!drag)return;
-  if(drag.type==='pinch'){if(ptrs.size<2)return;const p=pinchInfo();V.s=Math.min(3,Math.max(0.01,drag.s0*p.d/drag.d0));V.tx=p.mx-drag.ax*V.s;V.ty=p.my-drag.ay*V.s;renderCanvas();return}
-  if(drag.type==='pan'){if(Math.hypot(e.clientX-drag.sx,e.clientY-drag.sy)>6)drag.tap=false;V.tx=drag.tx+e.clientX-drag.sx;V.ty=drag.ty+e.clientY-drag.sy;renderCanvas();return}
-  const it=getItem(sel);if(!it)return;
-  const m=toMM(e);let nx=Math.round((drag.ox+m.x-drag.sx)/10)*10,ny=Math.round((drag.oy+m.y-drag.sy)/10)*10;
-  [nx,ny]=magnet(it,nx,ny);
-  if(nx!==it.x||ny!==it.y){it.x=r1(nx);it.y=r1(ny);drag.moved=true;renderCanvas()}
+  if(drag.type==='pinch'){if(ptrs.size<2)return;const p=pinchInfo();V.s=Math.min(3,Math.max(0.01,drag.s0*p.d/drag.d0));V.tx=p.mx-drag.ax*V.s;V.ty=p.my-drag.ay*V.s;renderView();return}
+  if(drag.type==='pan'){if(Math.hypot(e.clientX-drag.sx,e.clientY-drag.sy)>6)drag.tap=false;V.tx=drag.tx+e.clientX-drag.sx;V.ty=drag.ty+e.clientY-drag.sy;renderView();return}
+  const it=selItem();if(!it)return;const m=toMM(e);
+  if(drag.type==='wall'){if(wallDrag(it,m)){drag.moved=true;renderCanvas()}return}
+  if(drag.type==='move'){
+    let nx=s10(drag.ox+m.x-drag.sx),ny=s10(drag.oy+m.y-drag.sy);
+    [nx,ny]=magnet(it,nx,ny);
+    if(nx!==it.x||ny!==it.y){it.x=r1(nx);it.y=r1(ny);drag.moved=true;renderCanvas()}
+    return;
+  }
+  // 棚
+  const c=shelfCtx(),g=SG(c);let f=findShelfItem(c,it.id);const th=12/V.s;
+  const sub=subtree(f.lv,it.id);
+  const lims=lv=>{const xs=[0,g.iw-it.w];(lv.parts||[]).forEach(p=>xs.push(p-it.w,p+g.t));return xs};
+  if(drag.type==='sfront'){
+    // 段の移動
+    const li=levelAt(c,g,m.y-drag.grabDy-1);
+    if(li!==f.li){moveToLevel(c,f.li,li,sub);it.on=null;f=findShelfItem(c,it.id);UI.level=li}
+    const lv=f.lv;
+    let nx=s10(drag.ox+m.x-drag.sx);
+    const xs=lims(lv);lv.items.forEach(o=>{if(!sub.has(o.id)&&o.zb<it.zb+it.d-0.5&&it.zb<o.zb+o.d-0.5)xs.push(o.x+o.w,o.x-it.w)});
+    nx=pickNear(nx,xs,th);
+    // 重ね置きの判定
+    const top=g.Ht-g.base[f.li]-lv.h,rawBottom=top+lv.h-(m.y-drag.grabDy);
+    let on=null,best=-1;
+    lv.items.forEach(o=>{if(sub.has(o.id))return;if(!(o.x<nx+it.w-0.5&&nx<o.x+o.w-0.5))return;const tp=itemY(lv,o)+o.h;if(rawBottom>=tp-o.h/2&&tp>best){best=tp;on=o}});
+    const dx=nx-it.x;
+    sub.forEach(id=>{const o=lv.items.find(q=>q.id===id);if(o&&id!==it.id)o.x+=dx});
+    it.x=nx;
+    if(on){if(it.on!==on.id){const dz=on.zb-it.zb;sub.forEach(id=>{const o=lv.items.find(q=>q.id===id);if(o)o.zb+=dz})}it.on=on.id}else it.on=null;
+    drag.moved=true;renderShelf();return;
+  }
+  if(drag.type==='stop'){
+    const lv=f.lv;let nx=s10(drag.ox+m.x-drag.sx),nz=s10(drag.oz+m.y-drag.sy);
+    const Y=itemY(lv,it),same=o=>!sub.has(o.id)&&itemY(lv,o)<Y+it.h-0.5&&Y<itemY(lv,o)+o.h-0.5;
+    const xs=lims(lv);lv.items.forEach(o=>{if(same(o)&&o.zb<nz+it.d-0.5&&nz<o.zb+o.d-0.5)xs.push(o.x+o.w,o.x-it.w)});nx=pickNear(nx,xs,th);
+    const zs=[0,g.idp-it.d];lv.items.forEach(o=>{if(same(o)&&o.x<nx+it.w-0.5&&nx<o.x+o.w-0.5)zs.push(o.zb+o.d,o.zb-it.d)});nz=Math.max(0,pickNear(nz,zs,th));
+    const dx=nx-it.x,dz=nz-it.zb;sub.forEach(id=>{const o=lv.items.find(q=>q.id===id);if(o){o.x+=dx;o.zb+=dz}});
+    if(it.on){const b=lv.items.find(o=>o.id===it.on);if(b&&!(b.x<it.x+it.w-0.5&&it.x<b.x+b.w-0.5&&b.zb<it.zb+it.d-0.5&&it.zb<b.zb+b.d-0.5))it.on=null}
+    drag.moved=true;renderShelf();return;
+  }
 });
 const endDrag=e=>{
   ptrs.delete(e.pointerId);
   if(!drag)return;
   if(drag.type==='pinch'){if(ptrs.size===0){drag=null;flushRemote()}return}
-  if(drag.type==='pan'){const tap=drag.tap;drag=null;if(tap&&sel){sel=null;render()}flushRemote();return}
-  const mv=drag.type==='move'&&drag.moved;drag=null;if(mv)commit();else renderPanel();flushRemote();
+  if(drag.type==='pan'){const tap=drag.tap&&!drag.lvTap;drag=null;if(tap&&sel){sel=null;render()}flushRemote();return}
+  const mv=drag.moved;drag=null;if(mv)commit();else render();flushRemote();
 };
 function flushRemote(){if(pendingRemote){const d=pendingRemote;pendingRemote=null;applyRemote(d)}}
 svg.addEventListener('pointerup',endDrag);svg.addEventListener('pointercancel',endDrag);
 svg.addEventListener('wheel',e=>{
   e.preventDefault();const m=toMM(e),b=svg.getBoundingClientRect();
   V.s=Math.min(3,Math.max(0.01,V.s*(e.deltaY<0?1.15:1/1.15)));
-  V.tx=e.clientX-b.left-m.x*V.s;V.ty=e.clientY-b.top-m.y*V.s;renderCanvas();
+  V.tx=e.clientX-b.left-m.x*V.s;V.ty=e.clientY-b.top-m.y*V.s;renderView();
 },{passive:false});
 svg.addEventListener('contextmenu',e=>e.preventDefault());
-window.addEventListener('resize',()=>renderCanvas());
+window.addEventListener('resize',()=>{if(S&&UI.mode!=='cand')renderView()});
 
-function rotate(f){const a=fp(f),cx=a.x+a.w/2,cy=a.y+a.h/2;f.rot=f.rot?0:1;const b=fp(f);f.x=Math.round((cx-b.w/2)/10)*10;f.y=Math.round((cy-b.h/2)/10)*10}
+function rotate(f){const a=fp(f),cx=a.x+a.w/2,cy=a.y+a.h/2;f.rot=f.rot?0:1;const b=fp(f);f.x=s10(cx-b.w/2);f.y=s10(cy-b.h/2)}
+function nudge(dx,dy){
+  const it=selItem();if(!it)return;
+  if(UI.mode==='plan'){
+    if(sel.k==='x'){const W=WI(room(),it.wall),d=W.tx?dx:dy;if(!d)return;it.offset=Math.max(0,Math.min(W.L-fixW(it),it.offset+d))}
+    else if(sel.k==='f'||sel.k==='o'){it.x+=dx;it.y+=dy}else return;
+  }else{
+    const c=shelfCtx(),f=findShelfItem(c,it.id),sub=subtree(f.lv,it.id);
+    sub.forEach(id=>{const o=f.lv.items.find(q=>q.id===id);o.x+=dx;o.zb=Math.max(0,o.zb+dy)});
+  }
+  commit();
+}
 function delSel(){
   if(!sel)return;
-  if(sel.k==='f'){const p=plan();p.furniture=p.furniture.filter(f=>f.id!==sel.id)}
-  else{const r=room();r.fixtures=r.fixtures.filter(x=>x.id!==sel.id)}
+  if(UI.mode==='plan'){if(sel.k==='f'){const p=plan();p.furniture=p.furniture.filter(f=>f.id!==sel.id)}else{const r=room();r.fixtures=r.fixtures.filter(x=>x.id!==sel.id)}}
+  else{const c=shelfCtx(),f=findShelfItem(c,sel.id);if(f){f.lv.items.forEach(o=>{if(o.on===sel.id)o.on=null});f.lv.items=f.lv.items.filter(o=>o.id!==sel.id)}}
   sel=null;commit();
 }
 document.addEventListener('keydown',e=>{
-  if(!document.getElementById('dlg').hidden)return;
+  if(!$('dlg').hidden)return;
   const tag=(e.target.tagName||'').toLowerCase();
   if(tag==='input'||tag==='select'||tag==='textarea')return;
   const k=e.key.toLowerCase();
   if((e.ctrlKey||e.metaKey)&&k==='z'){e.preventDefault();e.shiftKey?redo():undo();return}
   if((e.ctrlKey||e.metaKey)&&k==='y'){e.preventDefault();redo();return}
+  if(UI.mode==='cand')return;
   if(e.key==='Escape'){sel=null;render();return}
-  const it=getItem(sel);if(!it)return;
+  const it=selItem();if(!it)return;
   if(e.key==='Delete'||e.key==='Backspace'){e.preventDefault();delSel();return}
-  if(k==='r'&&sel.k==='f'){rotate(it);commit();return}
+  if(k==='r'){ACTS.rot();return}
   const st=e.shiftKey?100:e.altKey?1:10,mv={ArrowLeft:[-st,0],ArrowRight:[st,0],ArrowUp:[0,-st],ArrowDown:[0,st]}[e.key];
-  if(mv&&(sel.k==='f'||sel.k==='o')){e.preventDefault();it.x+=mv[0];it.y+=mv[1];commit()}
+  if(mv){e.preventDefault();nudge(mv[0],mv[1])}
 });
 
+/* ---------- パネル入力 ---------- */
+const NUMK=['w','d','h','width','x','y','offset','sill','zb','t','iw','idp'];
 panel.addEventListener('change',e=>{
-  const el=e.target,k=el.dataset.k;if(!k)return;
+  const el=e.target;
+  if(el.id==='itemLv'){const c=shelfCtx(),f=findShelfItem(c,sel.id),to=Number(el.value);if(f&&to!==f.li){const sub=subtree(f.lv,f.it.id);moveToLevel(c,f.li,to,sub);f.it.on=null;UI.level=to;commit()}return}
+  if(el.dataset.lv!==undefined){
+    const c=shelfCtx(),lv=c.sh.levels[Number(el.dataset.lv)];if(!lv)return;
+    if(el.dataset.lk==='h'){const v=Math.round(Number(el.value));if(!(v>=10)){render();return}lv.h=v}
+    else lv.parts=el.value.split(/[,、\s]+/).map(Number).filter(v=>isFinite(v)&&v>0).map(Math.round).sort((a,b)=>a-b);
+    commit();return;
+  }
+  const k=el.dataset.k;if(!k)return;
   const tgt=el.closest('[data-t]');if(!tgt)return;
-  const obj=tgt.dataset.t==='room'?room():getItem(sel);if(!obj)return;
+  const t=tgt.dataset.t;let obj;
+  if(t==='room')obj=room();else if(t==='sel'||t==='si')obj=selItem();
+  else{const c=shelfCtx();if(!c)return;obj=t==='sh'?c.holder:c.sh}
+  if(!obj)return;
   let v=el.value;
-  if(el.type==='number'){v=Math.round(Number(v));if(!isFinite(v)){render();return}if(['w','d','h','width'].includes(k)&&v<10)v=10;if(k==='sill'&&v<0)v=0}
+  if(el.type==='number'){
+    if(v===''&&(k==='iw'||k==='idp')){obj[k]=null;commit();return}
+    v=Math.round(Number(v));if(!isFinite(v)){render();return}
+    if(['w','d','h','width','t','iw','idp'].includes(k)&&v<(k==='t'?0:10))v=k==='t'?0:10;if((k==='sill'||k==='zb')&&v<0)v=0;
+  }
   if(k==='name'&&!String(v).trim()){render();return}
+  if(t==='sel'&&k==='wall'){const W=WI(room(),v);obj.offset=Math.max(0,Math.min(W.L-fixW(obj),obj.offset))}
   obj[k]=v;commit();
 });
 document.addEventListener('change',e=>{
   if(e.target.id==='planSel'){room().planId=e.target.value;sel=null;commit()}
+  if(e.target.id==='shelfSel'){const c=shelfList().find(x=>refKey(x.ref)===e.target.value);if(c){UI.shelfRef=c.ref;UI.level=c.sh.levels.length-1;sel=null;render();fit()}}
 });
 const cnt=()=>plan().furniture.length;
-function center(w,d){const r=room();return [Math.max(0,Math.round((r.w-w)/20)*10),Math.max(0,Math.round((r.d-d)/20)*10)]}
+function center(w,d){const r=room();return [Math.max(0,s10((r.w-w)/2)),Math.max(0,s10((r.d-d)/2))]}
 function addFix(o){o.id=uid();room().fixtures.push(o);sel={k:o.type==='obstacle'?'o':'x',id:o.id};commit()}
+function setMode(m){UI.mode=m;sel=null;if(m!=='cand')candEdit=null;render();if(m!=='cand')requestAnimationFrame(fit)}
+function addShelfItem(c,li,o){
+  const g=SG(c),lv=c.sh.levels[li];
+  let x=0;lv.items.filter(q=>!q.on).forEach(q=>{x=Math.max(x,q.x+q.w)});if(x+o.w>g.iw)x=0;
+  const it={id:uid(),name:o.name,w:o.w,d:o.d,h:o.h,color:o.color||COLORS[(lv.items.length+3)%COLORS.length],x:s10(x),zb:0,on:null};
+  lv.items.push(it);UI.level=li;sel={k:'sf',id:it.id};return it;
+}
 const ACTS={
   undo,redo,fit,
+  mode(el){setMode(el.dataset.m)},
   async export(){
     const d=new Date(),n=`模様替え_${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.json`;
+    const used={};S.cands.forEach(c=>{if(c.photo&&PHOTOS[c.photo])used[c.photo]=PHOTOS[c.photo]});
+    const data=JSON.stringify({...S,photos:used});
     if(CAP.inArtifact){
       if(!CAP.downloads){note('この画面ではファイルに書き出せません。');return}
-      try{await CAP.downloads.save({filename:n,data:JSON.stringify(S,null,1)})}
-      catch(e){if(e&&e.code!=='declined')note('ファイルに書き出せませんでした。');}
+      try{await CAP.downloads.save({filename:n,data})}catch(e){if(e&&e.code!=='declined')note('ファイルに書き出せませんでした。')}
       return;
     }
-    const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(S,null,1)],{type:'application/json'}));a.download=n;document.body.appendChild(a);a.click();
-    setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);
+    const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([data],{type:'application/json'}));a.download=n;document.body.appendChild(a);a.click();
+    setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500);
   },
-  import(){document.getElementById('fileIn').click()},
+  import(){$('fileIn').click()},
   room(el){S.cur=Number(el.dataset.i);sel=null;commit();fit()},
-  async addRoom(){const n=await ask('部屋の名前を入力してください','寝室');if(!n||!n.trim())return;S.rooms.push(newRoom(n,3600,3600));S.cur=S.rooms.length-1;sel=null;commit();fit()},
-  async delRoom(){if(S.rooms.length<2){note('部屋が1つしかないため削除できません');return}if(!await confirmBox(`「${room().name}」を削除しますか？`))return;S.rooms.splice(S.cur,1);S.cur=0;sel=null;commit();fit()},
+  async addRoom(){const n=await ask('部屋の名前を入力してください','寝室');if(!n||!n.trim())return;S.rooms.push(newRoom(n.trim(),3600,3600));S.cur=S.rooms.length-1;sel=null;commit();fit()},
+  async delRoom(){if(S.rooms.length<2){note('部屋が1つしかないため削除できません');return}if(!await confirmBox(`「${room().name}」を削除しますか？\n（この部屋の家具の棚データも消えます）`))return;S.rooms.splice(S.cur,1);S.cur=0;sel=null;commit();fit()},
   planDup(){const r=room(),p=plan(),c=JSON.parse(JSON.stringify(p));c.id=uid();c.name=p.name+' のコピー';c.furniture.forEach(f=>f.id=uid());r.plans.push(c);r.planId=c.id;sel=null;commit()},
   planNew(){const r=room(),c=newPlan('案'+(r.plans.length+1));r.plans.push(c);r.planId=c.id;sel=null;commit()},
   async planRen(){const p=plan(),n=await ask('配置案の名前',p.name);if(n&&n.trim()){p.name=n.trim();commit()}},
@@ -553,38 +922,142 @@ const ACTS={
   addDoor(){addFix({type:'door',wall:'bottom',offset:100,width:780,kind:'hinged',hinge:'start',swing:'in',slide:'end'})},
   addWin(){addFix({type:'window',wall:'top',offset:100,width:1690,sill:900})},
   addOut(){addFix({type:'outlet',wall:'left',offset:300,kind:'outlet'})},
-  addCl(){addFix({type:'closet',wall:'right',offset:100,width:1690,kind:'double',hinge:'start',swing:'in',slide:'start'})},
-  rot(){const it=getItem(sel);if(it){rotate(it);commit()}},
-  dup(){const it=getItem(sel);if(!it)return;const c={...it,id:uid(),name:it.name+'(2)',x:it.x+100,y:it.y+100};plan().furniture.push(c);sel={k:'f',id:c.id};commit()},
+  addCl(){addFix({type:'closet',wall:'right',offset:100,width:1690,kind:'double',hinge:'start',swing:'in',slide:'end'})},
+  rot(){const it=selItem();if(!it)return;
+    if(UI.mode==='plan'){if(sel.k!=='f')return;rotate(it)}else{const w=it.w;it.w=it.d;it.d=w}
+    commit()},
+  dup(){const it=selItem();if(!it)return;
+    if(UI.mode==='plan'){const c={...it,id:uid(),name:it.name+'(2)',x:it.x+100,y:it.y+100};if(c.shelf)c.shelf=JSON.parse(JSON.stringify(c.shelf));plan().furniture.push(c);sel={k:'f',id:c.id}}
+    else{const c=shelfCtx(),f=findShelfItem(c,it.id);addShelfItem(c,f.li,{...it,name:it.name+'(2)'})}
+    commit()},
   del:delSel,
   moveRoom(){
-    const it=getItem(sel),i=Number(document.getElementById('mvRoom').value),to=S.rooms[i];if(!it||!to)return;
+    const it=selItem(),i=Number($('mvRoom').value),to=S.rooms[i];if(!it||!to)return;
     const p=plan();p.furniture=p.furniture.filter(f=>f.id!==it.id);
     const tp=to.plans.find(q=>q.id===to.planId)||to.plans[0];const a=fp(it);
     it.x=Math.max(0,Math.min(it.x,to.w-a.w));it.y=Math.max(0,Math.min(it.y,to.d-a.h));tp.furniture.push(it);
     S.cur=i;sel={k:'f',id:it.id};commit();fit();
   },
-  selF(el){sel={k:'f',id:el.dataset.id};render()},
-  nudge(el){const it=getItem(sel);if(!it||!(sel.k==='f'||sel.k==='o'))return;it.x+=Number(el.dataset.dx)*padStep;it.y+=Number(el.dataset.dy)*padStep;commit()},
-  padStep(){padStep=padStep===10?100:padStep===100?1:10;renderCanvas()},
+  selF(el){if(UI.mode==='shelf'){const c=shelfCtx(),f=findShelfItem(c,el.dataset.id);if(!f)return;UI.level=f.li;sel={k:'sf',id:el.dataset.id}}else sel={k:'f',id:el.dataset.id};render()},
+  nudge(el){nudge(Number(el.dataset.dx)*padStep,Number(el.dataset.dy)*padStep)},
+  padStep(){padStep=padStep===10?100:padStep===100?1:10;updatePad()},
+  // 棚
+  editShelf(){const it=selItem();if(!it)return;const r=room(),p=plan();if(!it.shelf)it.shelf=defaultShelf(it.h);UI.shelfRef={t:'f',r:r.id,p:p.id,f:it.id};UI.level=it.shelf.levels.length-1;UI.mode='shelf';sel=null;commit();requestAnimationFrame(fit)},
+  gotoPlan(){const c=shelfCtx();if(!c||!c.linked)return;S.cur=S.rooms.indexOf(c.room);c.room.planId=c.plan.id;UI.mode='plan';sel={k:'f',id:c.holder.id};commit();requestAnimationFrame(fit)},
+  async addShelfS(){const n=await ask('棚の名前（例：押入れ上段、キッチン吊り戸棚）','押入れ');if(!n||!n.trim())return;
+    const s={id:uid(),name:n.trim(),w:900,d:400,h:1800,shelf:null};s.shelf=defaultShelf(s.h);S.shelves.push(s);UI.shelfRef={t:'s',id:s.id};UI.level=s.shelf.levels.length-1;sel=null;commit();requestAnimationFrame(fit)},
+  async delShelfS(){const c=shelfCtx();if(!c||c.linked)return;if(!await confirmBox(`「${c.holder.name}」を削除しますか？`))return;S.shelves=S.shelves.filter(s=>s!==c.holder);UI.shelfRef=null;sel=null;commit();requestAnimationFrame(fit)},
+  async delShelfLink(){const c=shelfCtx();if(!c||!c.linked)return;if(!await confirmBox(`「${c.holder.name}」の棚の中のデータ（段・置いた物）を削除しますか？\n家具そのものは残ります。`))return;delete c.holder.shelf;UI.shelfRef=null;sel=null;commit();requestAnimationFrame(fit)},
+  addLevel(){const c=shelfCtx();if(!c)return;c.sh.levels.push({h:300,parts:[],items:[]});UI.level=c.sh.levels.length-1;commit()},
+  async delLevel(el){const c=shelfCtx(),i=Number(el.dataset.i);if(!c||c.sh.levels.length<2){note('段が1つしかないため削除できません');return}
+    const lv=c.sh.levels[i];if(lv.items.length&&!await confirmBox(`${lvName(c,i)}には物が${lv.items.length}個あります。段ごと削除しますか？`))return;
+    c.sh.levels.splice(i,1);UI.level=Math.min(UI.level,c.sh.levels.length-1);sel=null;commit()},
+  selLv(el){UI.level=Number(el.dataset.i);sel=null;render()},
+  addItem(){const c=shelfCtx();if(!c)return;addShelfItem(c,UI.level,{name:'かご'+(c.sh.levels[UI.level].items.length+1),w:250,d:350,h:250});commit()},
+  unstack(){const it=selItem();if(it){it.on=null;commit()}},
+  // 候補
+  cfilter(el){UI.cfilter=el.dataset.k;render()},
+  candNew(){candEdit={isNew:true,id:uid(),name:'',kind:'small',w:null,d:null,h:null,price:null,store:'',memo:'',status:'cand',photo:null};renderCands();window.scrollTo(0,0);$('candView').scrollTop=0},
+  candEditBtn(el){const x=S.cands.find(c=>c.id===el.dataset.id);if(!x)return;candEdit={...x,isNew:false};renderCands();$('candView').scrollTop=0;window.scrollTo(0,0)},
+  candCancel(){candEdit=null;renderCands()},
+  photoPick(){readCandForm();$('photoIn').click()},
+  photoDel(){readCandForm();candEdit.photoData=null;candEdit.photo=null;renderCands()},
+  async candSave(){
+    readCandForm();const e=candEdit;
+    if(!String(e.name||'').trim()){note('名前を入れてください。');return}
+    const o={id:e.id,name:e.name.trim(),kind:e.kind,w:e.w,d:e.d,h:e.h,price:e.price,store:e.store||'',memo:e.memo||'',status:e.status,photo:e.photo||null,at:e.at||Date.now()};
+    if(e.photoData){const pid=uid();PHOTOS[pid]=e.photoData;o.photo=pid;await savePhotos()}
+    const i=S.cands.findIndex(c=>c.id===o.id);if(i>=0)S.cands[i]=o;else S.cands.push(o);
+    candEdit=null;commit();
+  },
+  async candDel(){if(!await confirmBox(`「${candEdit.name}」を削除しますか？`))return;S.cands=S.cands.filter(c=>c.id!==candEdit.id);candEdit=null;commit()},
+  candToPlan(el){
+    const x=S.cands.find(c=>c.id===el.dataset.id);if(!x)return;
+    if(!x.w||!x.d){note('幅と奥行きを入れてから置いてください。');return}
+    const [px,py]=center(x.w,x.d),f={id:uid(),name:x.name,w:x.w,d:x.d,h:x.h||0,color:COLORS[cnt()%COLORS.length],x:px,y:py,rot:0};
+    plan().furniture.push(f);UI.mode='plan';sel={k:'f',id:f.id};commit();requestAnimationFrame(fit);
+    note(`「${room().name}」の「${plan().name}」に置きました。\n別の部屋や配置案に置きたいときは、先に間取りでその部屋・案を開いてから押してください。`);
+  },
+  async candToShelf(el){
+    const x=S.cands.find(c=>c.id===el.dataset.id);if(!x)return;
+    if(!x.w||!x.d||!x.h){note('幅・奥行き・高さを入れてから置いてください。');return}
+    const L=shelfList();if(!L.length){note('棚がまだありません。「棚」画面で先に棚を作ってください。');return}
+    let c=shelfCtx();
+    if(L.length>1){const i=await choose(`「${x.name}」をどの棚に置きますか？`,L.map(q=>q.label));if(i===null)return;c=L[i];UI.shelfRef=c.ref;UI.level=c.sh.levels.length-1}
+    const li=await choose('どの段に置きますか？',c.sh.levels.map((_,i)=>lvName(c,i)).reverse());if(li===null)return;
+    addShelfItem(c,c.sh.levels.length-1-li,{name:x.name,w:x.w,d:x.d,h:x.h});
+    UI.mode='shelf';commit();requestAnimationFrame(fit);
+  },
 };
-document.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if(!el)return;const f=ACTS[el.dataset.act];if(f)f(el)});
-document.getElementById('fileIn').addEventListener('change',e=>{
+document.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if(!el)return;if(el.tagName==='A')e.preventDefault();const f=ACTS[el.dataset.act];if(f)f(el)});
+$('fileIn').addEventListener('change',e=>{
   const file=e.target.files[0];if(!file)return;
   const rd=new FileReader();
   rd.onload=async()=>{
     e.target.value='';
     let d;try{d=JSON.parse(rd.result);if(!Array.isArray(d.rooms)||!d.rooms.length)throw 0}catch(err){note('このファイルは読み込めませんでした。');return}
     if(!await confirmBox('今の内容を、読み込んだファイルの内容に置き換えます。よろしいですか？\n（「元に戻す」で戻せます）'))return;
-    S=d;S.cur=0;sel=null;commit();fit();
+    if(d.photos&&typeof d.photos==='object'){Object.assign(PHOTOS,d.photos);await savePhotos()}
+    delete d.photos;S=migrate(d);S.cur=0;sel=null;UI.shelfRef=null;commit();if(UI.mode!=='cand')fit();
   };
   rd.readAsText(file);
 });
 
-render();
-requestAnimationFrame(fit);
-save();
-initCaps();
+/* ---------- クラウド同期（Claudeのリンクで開いたときだけ） ---------- */
+const setCloud=t=>{$('cloud').textContent=t};
+async function pushCloud(){
+  if(!cloud)return;if(cloudBusy){cloudDirty=true;return}
+  cloudBusy=true;
+  try{await cloud.set({json:JSON.stringify(S),at:localAt,dev:DEV});setCloud('☁ 同期済み')}
+  catch(e){setCloud('☁ 同期できませんでした（この端末には保存済み）')}
+  cloudBusy=false;if(cloudDirty){cloudDirty=false;pushCloud()}
+}
+function applyRemote(d){
+  if(drag){pendingRemote=d;return}
+  let n;try{n=JSON.parse(d.json)}catch(e){return}
+  if(!n||!Array.isArray(n.rooms)||!n.rooms.length)return;
+  hist.push(snap);fut=[];S=migrate(n);snap=JSON.stringify(S);localAt=d.at;save();
+  try{localStorage.setItem(KEY+'_at',String(localAt))}catch(e){}
+  if(!selItem())sel=null;render();setCloud('☁ 他の端末の変更を反映しました');
+}
+async function initCaps(){
+  let tries=0;while(!(window.claude&&typeof window.claude.use==='function')){if(++tries>20)return;await new Promise(r=>setTimeout(r,150))}
+  CAP.inArtifact=true;
+  try{CAP.downloads=await window.claude.use('downloads')}catch(e){}
+  let db=null,user=null;
+  try{db=await window.claude.use('db');user=await window.claude.use('user')}catch(e){}
+  if(!db||!user)return;
+  let id=null;try{id=await user.id()}catch(e){}
+  if(!id)return;
+  try{cloud=db.doc('data/users/'+id+'/state')}catch(e){cloud=null;return}
+  setCloud('☁ 接続中…');
+  const tm=setTimeout(()=>setCloud('☁ つながりません（この端末には保存済み）'),10000);
+  cloud.onSnapshot(sn=>{
+    if(!sn.metadata.fromCache)clearTimeout(tm);
+    if(!sn.exists){if(!sn.metadata.fromCache){if(localAt>0)pushCloud();else setCloud('☁ 同期済み')}return}
+    const d=sn.data()||{};
+    if(d.dev===DEV)return;
+    if(typeof d.at==='number'&&d.at>localAt)applyRemote(d);
+    else if(!sn.metadata.fromCache){if(d.at<localAt)pushCloud();else setCloud('☁ 同期済み')}
+  },()=>{clearTimeout(tm);cloud=null;setCloud('')});
+}
+
+/* ---------- 起動 ---------- */
+(async function boot(){
+  let txtS=null,ph=null;
+  try{await IDB.open();txtS=await IDB.get('state');ph=await IDB.get('photos')}catch(e){IDB.db=null}
+  if(!txtS){try{txtS=localStorage.getItem(KEY)}catch(e){}}
+  try{S=JSON.parse(txtS)}catch(e){S=null}
+  if(!S||!Array.isArray(S.rooms)||!S.rooms.length)S=sample();
+  S=migrate(S);PHOTOS=ph&&typeof ph==='object'?ph:{};
+  // 使われていない写真を片付ける
+  const used=new Set(S.cands.map(c=>c.photo).filter(Boolean));let rm=false;
+  Object.keys(PHOTOS).forEach(k=>{if(!used.has(k)){delete PHOTOS[k];rm=true}});if(rm)savePhotos();
+  snap=JSON.stringify(S);
+  if(!['plan','shelf','cand'].includes(UI.mode))UI.mode='plan';
+  render();requestAnimationFrame(()=>{if(UI.mode!=='cand')fit()});
+  saveNow();initCaps();
+})();
 </script>
 </body>
 </html>
