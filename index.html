@@ -646,7 +646,7 @@ function levelSheet(c){
   const link=nb>=0?`高さを変えると${lvName(c,nb)}が連動します。`:'段が1つだけなので、高さは外寸で決まります。';
   return `<div class="info">${link}</div><div class="dims3"><label>高さ（内寸）<input type="number" inputmode="numeric" step="10" data-lv="${i}" data-lk="h" value="${lv.h}"${nb<0?' disabled':''}></label><label style="grid-column:span 2">仕切り（左からmm、カンマ区切り）<input data-lv="${i}" data-lk="parts" value="${esc((lv.parts||[]).join(','))}" placeholder="例 400,800"></label></div>
     <div class="info">物 ${lv.items.length}個　／　内寸 幅 ${r1(SG(c).iw)} × 奥行き ${r1(SG(c).idp)} mm</div>
-    <div class="btns"><button data-act="addItem" class="primary">＋物を置く</button><button data-act="addLevel">＋棚板を入れる</button>${L.length>1?`<button data-act="delLevel" data-i="${i}" class="danger">板を抜く</button>`:''}</div>`;
+    <div class="btns"><button data-act="addItem" class="primary">＋物を置く</button><button data-act="addLevel">＋棚板を入れる</button>${L.length>1?`<button data-act="delLevel" data-i="${i}" class="danger">板を抜く</button>`:''}${c.linked?'':'<button data-act="placeShelf">🏠 間取りに置く</button>'}</div>`;
 }
 function dimIn(label,k,v){return `<label>${label}<input data-k="${k}" type="number" inputmode="numeric" step="10" value="${esc(v)}"></label>`}
 function sheetCompact(it){
@@ -695,7 +695,7 @@ function placePad(){
 function ensureVisible(){
   if(drag||(!sel&&!lvOpen)){return}
   needEnsure=false;
-  const el=sel?svg.querySelector(`[data-id="${sel.id}"]`):svg.querySelector(`[data-k="lv"][data-i="${UI.level}"]`),sh=$('sheet');if(!el||sh.hidden)return;
+  const el=sel?(svg.querySelector(`[data-k="${sel.k}"][data-id="${sel.id}"]`)||svg.querySelector(`[data-id="${sel.id}"]`)):svg.querySelector(`[data-k="lv"][data-i="${UI.level}"]`),sh=$('sheet');if(!el||sh.hidden)return;
   const r=el.getBoundingClientRect(),sv=svg.getBoundingClientRect(),limB=Math.min(sh.getBoundingClientRect().top-12,sv.bottom-8),limT=Math.max(sv.top,0)+8;
   let dy=0;if(r.bottom>limB)dy=limB-r.bottom;if(r.top+dy<limT)dy=limT-r.top;
   if(dy){V.ty+=dy;renderView()}
@@ -722,7 +722,7 @@ function renderShelfBars(){
   const L=shelfList(),c=shelfCtx();
   $('bar1').innerHTML=L.length?`<b>棚：</b><select id="shelfSel">${L.map(x=>`<option value="${esc(refKey(x.ref))}" ${c&&refKey(x.ref)===refKey(c.ref)?'selected':''}>${esc(x.label)}</option>`).join('')}</select><button data-act="addShelfS">＋単独の棚<span class="lg">を作る</span></button>`
     :`<button data-act="addShelfS">＋単独の棚を作る</button><span class="hint">間取りの家具を選んで「棚の中を編集」でも作れます</span>`;
-  $('bar2').innerHTML=c?`<button data-act="addItem">＋物<span class="lg">（かご・小物）</span>を${esc(lvName(c,UI.level))}に置く</button><button data-act="addLevel">＋棚板を入れる<span class="lg">（選んだ段を2つに分ける）</span></button><button data-act="shareShelf">🔗 URLで送る</button>${c.linked?`<button data-act="gotoPlan">間取りで見る</button>`:''}`:'';
+  $('bar2').innerHTML=c?`<button data-act="addItem">＋物<span class="lg">（かご・小物）</span>を${esc(lvName(c,UI.level))}に置く</button><button data-act="addLevel">＋棚板を入れる<span class="lg">（選んだ段を2つに分ける）</span></button><button data-act="shareShelf">🔗 URLで送る</button>${c.linked?`<button data-act="gotoPlan">間取りで見る</button>`:`<button data-act="placeShelf">🏠 間取りに置く</button>`}`:'';
   $('mhint').innerHTML='段をタップで段の設定 ／ ⇕をドラッグで棚板を上下 ／ 2本指：拡大縮小';
   $('phint').innerHTML='正面図：左右と段を決める（物の上に乗せると重ね置き）／ 上から見た図：手前と奥を決める ／ 段をクリックで選択 ／ 矢印キー：←→左右、↑↓奥・手前 ／ R：向きを変える ／ Delete：削除';
 }
@@ -829,7 +829,7 @@ function renderShelfPanel(){
     h+=`</table><div class="note">段の高さは外寸の高さに合わせて連動します。ある段を高くすると、すぐ上の段（いちばん上の段なら下の段）がその分低くなります。正面図の棚板（⇕）をドラッグしても変えられます。仕切りはカンマ区切りで複数入れられます。</div>`;
     const lv=c.sh.levels[UI.level];
     h+=`<h3>${esc(lvName(c,UI.level))}の物</h3>`+(lv&&lv.items.length?`<ul class="lst">${lv.items.map(it=>`<li data-act="selF" data-id="${it.id}"><span class="sw" style="background:${esc(it.color)}"></span>${esc(it.name)}　${it.w}×${it.d}×H${it.h}</li>`).join('')}</ul>`:'<div class="note">まだ何もありません。「＋物」で追加するか、候補リストから「棚に置く」で追加できます。</div>');
-    h+=`<div class="btns">${c.linked?'':'<button data-act="delShelfS" class="danger">この棚を削除</button>'}${c.linked?'<button data-act="delShelfLink" class="danger">棚の中のデータを削除</button>':''}</div>`;
+    h+=`<div class="btns">${c.linked?'':'<button data-act="placeShelf">🏠 間取りに置く</button><button data-act="delShelfS" class="danger">この棚を削除</button>'}${c.linked?'<button data-act="delShelfLink" class="danger">棚の中のデータを削除</button>':''}</div>`;
   }
   panel.innerHTML=h+checkHtml();
 }
@@ -1152,6 +1152,17 @@ const ACTS={
     const s={id:uid(),name:n.trim(),w:900,d:400,h:1800,shelf:null};s.shelf=defaultShelf(s.h);S.shelves.push(s);UI.shelfRef={t:'s',id:s.id};UI.level=s.shelf.levels.length-1;sel=null;commit();requestAnimationFrame(fit)},
   async delShelfS(){const c=shelfCtx();if(!c||c.linked)return;if(!await confirmBox(`「${c.holder.name}」を削除しますか？`))return;S.shelves=S.shelves.filter(s=>s!==c.holder);UI.shelfRef=null;sel=null;commit();requestAnimationFrame(fit)},
   async delShelfLink(){const c=shelfCtx();if(!c||!c.linked)return;if(!await confirmBox(`「${c.holder.name}」の棚の中のデータ（段・置いた物）を削除しますか？\n家具そのものは残ります。`))return;delete c.holder.shelf;UI.shelfRef=null;sel=null;commit();requestAnimationFrame(fit)},
+  async placeShelf(){
+    const c=shelfCtx();if(!c||c.linked)return;const s=c.holder;
+    const opts=[];S.rooms.forEach((r,ri)=>r.plans.forEach(p=>opts.push({ri,p,label:`${r.name}／${p.name}`})));
+    const cur=opts.findIndex(o=>o.ri===S.cur&&o.p.id===room().planId);if(cur>0)opts.unshift(...opts.splice(cur,1));
+    const k=await choose(`「${s.name}」をどこに置きますか？\n（置くと単独の棚の一覧からは消え、間取りの家具になります。棚の中身はそのまま引き継ぎます）`,opts.map(o=>o.label));if(k===null)return;
+    const o=opts[k],r=S.rooms[o.ri],p=o.p;
+    const f={id:uid(),name:s.name,w:s.w,d:s.d,h:s.h,color:COLORS[p.furniture.length%COLORS.length],x:Math.max(0,s10((r.w-s.w)/2)),y:Math.max(0,s10((r.d-s.d)/2)),rot:0,shelf:s.shelf};
+    p.furniture.push(f);S.shelves=S.shelves.filter(x=>x!==s);
+    S.cur=o.ri;r.planId=p.id;UI.shelfRef={t:'f',r:r.id,p:p.id,f:f.id};UI.mode='plan';lvOpen=false;sel={k:'f',id:f.id};
+    commit();requestAnimationFrame(fit);
+  },
   addLevel(){const c=shelfCtx();if(!c)return;const L=c.sh.levels,i=UI.level,lv=L[i],room_=lv.h-c.sh.t;
     if(room_<20){note('この段は低すぎて、棚板を入れられません。');return}
     const h1=Math.floor(room_/2),h2=room_-h1;lv.h=h1;L.splice(i+1,0,{h:h2,parts:[...(lv.parts||[])],items:[]});commit()},
