@@ -852,6 +852,43 @@ function renderShelfPanel(){
   panel.innerHTML=h+checkHtml();
 }
 
+/* ---------- ファイル保存 ---------- */
+const ymd=()=>{const d=new Date();return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`};
+async function saveFile(name,data,offerShare,label=''){
+  if(CAP.inArtifact){
+    if(!CAP.downloads){note('この画面ではファイルに書き出せません。');return}
+    try{await CAP.downloads.save({filename:name,data})}catch(e){if(e&&e.code!=='declined')note('ファイルに書き出せませんでした。')}
+    return;
+  }
+  const blob=new Blob([data],{type:'application/json'});
+  if(offerShare&&navigator.canShare){
+    let file=null;try{file=new File([blob],name,{type:'application/json'})}catch(e){}
+    if(file&&navigator.canShare({files:[file]})){
+      const k=await choose(`${label}をまとめました（${(blob.size/1024/1024).toFixed(1)}MB）。どうしますか？`,['共有メニューで送る（Discord・LINEなど）','ファイルとして保存する']);
+      if(k===null)return;
+      if(k===0){try{await navigator.share({files:[file],title:name})}catch(e){}return}
+    }
+  }
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500);
+  if(label)note(`${label}を「${name}」として保存しました。\nDiscordにそのファイルを添付して送ってください。受け取った人は「読み込む」で開くと、候補リストに追加されます。`);
+}
+async function importCands(raw){
+  const from=str(raw.from,20)||'だれか',list=arr(raw.cands,2000).map(cCand),ph=cPhotos(raw.photos);
+  if(!list.length){note('このファイルに候補は入っていませんでした。');return}
+  if(!await confirmBox(`「${from}」から候補${list.length}件が届きました。\n候補リストに追加しますか？（間取りや棚はそのままです）`))return;
+  let add=0,skip=0,phAdd=false;
+  list.forEach(c=>{
+    if(S.cands.some(x=>x.id===c.id)){skip++;return}
+    if(c.photo){if(ph[c.photo]){if(!PHOTOS[c.photo]){PHOTOS[c.photo]=ph[c.photo];phAdd=true}}else c.photo=null}
+    c.memo=((c.memo?c.memo+'\n':'')+`（${from}から）`).slice(0,500);
+    S.cands.push(c);add++;
+  });
+  if(phAdd)await savePhotos();
+  UI.mode='cand';sel=null;commit();
+  note(`${add}件を候補リストに追加しました。${skip?`\n（${skip}件はすでにあったので追加していません）`:''}`);
+}
+
 /* ---------- 候補を今の間取り・棚に置く ---------- */
 let pickKind='furn';
 function placeCandPlan(x){
@@ -875,10 +912,12 @@ function renderPicker(){
 }
 
 /* ---------- 候補リスト ---------- */
+const candFiltered=()=>S.cands.filter(x=>UI.cfilter==='all'||x.status===UI.cfilter).sort((a,b)=>(b.at||0)-(a.at||0));
 const KIND={furn:'家具',small:'かご・小物'},STAT={cand:'候補',buy:'購入済み',skip:'見送り'},SB={cand:'b-cand',buy:'b-buy',skip:'b-skip'};
 function renderCands(){
   const v=$('candView');let h='';
-  h+=`<div class="ctop"><button class="primary big" data-act="candNew">＋ 記録する</button>${['all','cand','buy','skip'].map(k=>`<button class="chip ${UI.cfilter===k?'on':''}" data-act="cfilter" data-k="${k}">${k==='all'?'すべて':STAT[k]}</button>`).join('')}</div>`;
+  const nF=candFiltered().length;
+  h+=`<div class="ctop"><button class="primary big" data-act="candNew">＋ 記録する</button>${['all','cand','buy','skip'].map(k=>`<button class="chip ${UI.cfilter===k?'on':''}" data-act="cfilter" data-k="${k}">${k==='all'?'すべて':STAT[k]}</button>`).join('')}${nF?`<button data-act="candExport">📤 まとめて送る（${nF}件）</button>`:''}</div>`;
   if(candEdit){
     const e=candEdit,ph=e.photoData||(e.photo&&PHOTOS[e.photo]);
     h+=`<div class="form" id="cform"><div class="phbox"><div class="ph">${ph?`<img src="${esc(ph)}" alt="">`:'写真なし'}</div><div><button data-act="photoPick">📷 写真を撮る／選ぶ</button>${ph?'<div class="btns"><button data-act="photoDel" class="danger">写真を外す</button></div>':''}</div></div>
@@ -892,7 +931,7 @@ function renderCands(){
     <div class="btns"><button class="primary" data-act="candSave">保存</button><button data-act="candCancel">キャンセル</button>${e.isNew?'':'<button data-act="candDel" class="danger">削除</button>'}</div>
     <div class="note">寸法はmmです。</div></div>`;
   }
-  const L=S.cands.filter(x=>UI.cfilter==='all'||x.status===UI.cfilter).sort((a,b)=>(b.at||0)-(a.at||0));
+  const L=candFiltered();
   const planDest=`${room().name}／${plan().name}`,sc=shelfCtx(),shDest=sc?`${sc.holder.name}・${lvName(sc,UI.level)}`:'';
   h+=L.length?`<div class="cards">${L.map(x=>{const ph=x.photo&&PHOTOS[x.photo];
     return `<div class="card"><div class="ph">${ph?`<img src="${esc(ph)}" alt="">`:'写真なし'}</div><div class="bd"><div class="nm">${esc(x.name)}<span class="badge ${SB[x.status]||''}">${STAT[x.status]||''}</span></div>
@@ -1144,16 +1183,15 @@ const ACTS={
   sheetToggle(){sheetBig=!sheetBig;renderSheet()},
   mode(el){setMode(el.dataset.m)},
   async export(){
-    const d=new Date(),n=`模様替え_${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.json`;
     const used={};S.cands.forEach(c=>{if(c.photo&&PHOTOS[c.photo])used[c.photo]=PHOTOS[c.photo]});
-    const data=JSON.stringify({...S,photos:used});
-    if(CAP.inArtifact){
-      if(!CAP.downloads){note('この画面ではファイルに書き出せません。');return}
-      try{await CAP.downloads.save({filename:n,data})}catch(e){if(e&&e.code!=='declined')note('ファイルに書き出せませんでした。')}
-      return;
-    }
-    const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([data],{type:'application/json'}));a.download=n;document.body.appendChild(a);a.click();
-    setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500);
+    await saveFile(`模様替え_${ymd()}.json`,JSON.stringify({...S,photos:used}),false);
+  },
+  async candExport(){
+    const L=candFiltered();if(!L.length){note('送る候補がありません。');return}
+    if(!UI.myName){const n=await ask('送り主として表示する名前を入れてください（ニックネームで十分です。例：パパ、ママ）','');if(!n||!n.trim())return;UI.myName=n.trim().slice(0,20);saveUI()}
+    const used={};L.forEach(c=>{if(c.photo&&PHOTOS[c.photo])used[c.photo]=PHOTOS[c.photo]});
+    const data=JSON.stringify({type:'moyougae-cands',v:1,from:UI.myName,cands:L,photos:used});
+    await saveFile(`候補リスト_${ymd()}.json`,data,true,`候補${L.length}件（写真${Object.keys(used).length}枚）`);
   },
   import(){$('fileIn').click()},
   room(el){S.cur=Number(el.dataset.i);sel=null;commit();fit()},
@@ -1259,7 +1297,9 @@ $('fileIn').addEventListener('change',e=>{
   const rd=new FileReader();
   rd.onload=async()=>{
     e.target.value='';
-    let raw,d;try{raw=JSON.parse(rd.result);d=sanitize(raw);if(!d)throw 0}catch(err){note('このファイルは読み込めませんでした。');return}
+    let raw,d;try{raw=JSON.parse(rd.result)}catch(err){note('このファイルは読み込めませんでした。');return}
+    if(raw&&raw.type==='moyougae-cands'){await importCands(raw);return}
+    try{d=sanitize(raw);if(!d)throw 0}catch(err){note('このファイルは読み込めませんでした。');return}
     if(!await confirmBox('今の内容を、読み込んだファイルの内容に置き換えます。よろしいですか？\n（「元に戻す」で戻せます）'))return;
     const ph=cPhotos(raw.photos);if(Object.keys(ph).length){Object.assign(PHOTOS,ph);await savePhotos()}
     S=migrate(d);normAll();S.cur=0;sel=null;UI.shelfRef=null;commit();if(UI.mode!=='cand')fit();
