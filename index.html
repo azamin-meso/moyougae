@@ -100,6 +100,20 @@ table.lv a{white-space:nowrap}
 #shr .warn{color:#a15c00}
 #shrDone{color:#1a7f37;font-weight:bold;min-height:1.2em}
 .mhint{display:none}
+#pick{position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;z-index:9}
+#pick .box{background:#fff;border-radius:10px;width:min(94vw,540px);max-height:80vh;display:flex;flex-direction:column;box-shadow:0 6px 24px rgba(0,0,0,.25)}
+#pick .hd{padding:12px 12px 8px;border-bottom:1px solid #e3e7ec}
+#pick .hd .t{display:flex;align-items:center;gap:8px;font-weight:bold;margin-bottom:8px}
+#pick .hd .t span{flex:1}
+#pick .ls{overflow:auto;padding:6px 8px 12px}
+.prow{display:flex;gap:10px;align-items:center;padding:8px;border-radius:6px;cursor:pointer;border-bottom:1px solid #f0f2f5}
+.prow:hover{background:#e8f0fb}
+.prow .ph{width:56px;height:56px;flex:none;border-radius:6px;background:#eef0f3;display:flex;align-items:center;justify-content:center;color:#99a;font-size:11px;overflow:hidden}
+.prow .ph img{width:100%;height:100%;object-fit:cover}
+.prow .nm{font-weight:bold}
+.prow .mt{font-size:12px;color:#556}
+.prow.dim{opacity:.45}
+.card .btns button.dim{opacity:.5}
 #sheet{display:none}
 #cv .bd{cursor:ns-resize}
 [hidden]{display:none!important}
@@ -124,6 +138,9 @@ table.lv a{white-space:nowrap}
   .cards{grid-template-columns:1fr}
   .phint{display:none}
   .mhint{display:flex}
+  #pick{align-items:flex-end}
+  #pick .box{width:100%;border-radius:14px 14px 0 0;max-height:78vh;padding-bottom:env(safe-area-inset-bottom)}
+  .prow{padding:10px 6px}
   #sheet{display:block;position:fixed;left:0;right:0;bottom:0;z-index:5;background:#fff;border-top:1px solid #c9d1da;border-radius:14px 14px 0 0;box-shadow:0 -4px 16px rgba(0,0,0,.18);padding:0 12px calc(12px + env(safe-area-inset-bottom));max-height:72vh;overflow:auto}
   #sheet .grip{display:flex;align-items:center;gap:6px;position:sticky;top:0;background:#fff;padding:6px 0 6px;touch-action:none;z-index:1}
   #sheet .grip .ttl{font-weight:bold;font-size:14px;flex:1}
@@ -179,6 +196,7 @@ table.lv a{white-space:nowrap}
   <aside id="panel"></aside>
 </div>
 <div id="sheet" hidden></div>
+<div id="pick" hidden><div class="box"><div class="hd"><div class="t"><span id="pickTtl"></span><button data-act="pickClose" aria-label="閉じる">✕</button></div><div id="pickChips"></div></div><div class="ls" id="pickList"></div></div></div>
 <div id="dlg" hidden><div class="box"><div class="msg" id="dlgMsg"></div><input id="dlgIn"><select id="dlgSel"></select><div class="btns"><button id="dlgCancel">キャンセル</button><button id="dlgOk" class="primary">OK</button></div></div></div>
 <div id="shr" hidden><div class="box"><div class="msg" id="shrMsg"></div>
   <div class="note" id="shrFrom"></div>
@@ -461,7 +479,7 @@ function renderPlanBars(){
   const r=room();
   $('bar1').innerHTML=`<b>配置案：</b><select id="planSel">${r.plans.map(p=>`<option value="${p.id}" ${p.id===r.planId?'selected':''}>${esc(p.name)}</option>`).join('')}</select>
   <button data-act="planDup"><span class="lg">この案を</span>複製</button><button data-act="planNew">空の案<span class="lg">を追加</span></button><button data-act="planRen">名前<span class="lg">変更</span></button><button data-act="planDel" class="danger"><span class="lg">この案を</span>削除</button><button data-act="sharePlan">🔗 URLで送る</button>`;
-  $('bar2').innerHTML=`<button data-act="addF">＋家具</button><button data-act="addO">＋障害物<span class="lg">（柱・出っ張り）</span></button><button data-act="addDoor">＋ドア</button><button data-act="addWin">＋窓</button><button data-act="addOut">＋コンセント<span class="lg">・スイッチ</span></button><button data-act="addCl">＋収納<span class="lg">（クローゼット・押入れ）</span></button>`;
+  $('bar2').innerHTML=`<button data-act="openPicker" class="primary">📋 候補から置く</button><button data-act="addF">＋家具</button><button data-act="addO">＋障害物<span class="lg">（柱・出っ張り）</span></button><button data-act="addDoor">＋ドア</button><button data-act="addWin">＋窓</button><button data-act="addOut">＋コンセント<span class="lg">・スイッチ</span></button><button data-act="addCl">＋収納<span class="lg">（クローゼット・押入れ）</span></button>`;
   $('mhint').innerHTML='1本指：移動 ／ 2本指：拡大縮小 ／ 右下のボタン：微調整・回転';
   $('phint').innerHTML='ドラッグで移動（10mm単位・壁や家具に吸着。窓・ドア・コンセントは壁に沿って移動）／ ホイールで拡大縮小 ／ 何もない所をドラッグで画面移動 ／ 矢印キー：10mm（Shift：100mm、Alt：1mm）／ R：90°回転 ／ Delete：削除';
 }
@@ -722,7 +740,7 @@ function renderShelfBars(){
   const L=shelfList(),c=shelfCtx();
   $('bar1').innerHTML=L.length?`<b>棚：</b><select id="shelfSel">${L.map(x=>`<option value="${esc(refKey(x.ref))}" ${c&&refKey(x.ref)===refKey(c.ref)?'selected':''}>${esc(x.label)}</option>`).join('')}</select><button data-act="addShelfS">＋単独の棚<span class="lg">を作る</span></button>`
     :`<button data-act="addShelfS">＋単独の棚を作る</button><span class="hint">間取りの家具を選んで「棚の中を編集」でも作れます</span>`;
-  $('bar2').innerHTML=c?`<button data-act="addItem">＋物<span class="lg">（かご・小物）</span>を${esc(lvName(c,UI.level))}に置く</button><button data-act="addLevel">＋棚板を入れる<span class="lg">（選んだ段を2つに分ける）</span></button><button data-act="shareShelf">🔗 URLで送る</button>${c.linked?`<button data-act="gotoPlan">間取りで見る</button>`:`<button data-act="placeShelf">🏠 間取りに置く</button>`}`:'';
+  $('bar2').innerHTML=c?`<button data-act="openPicker" class="primary">📋 候補から置く</button><button data-act="addItem">＋物<span class="lg">（かご・小物）</span>を${esc(lvName(c,UI.level))}に置く</button><button data-act="addLevel">＋棚板を入れる<span class="lg">（選んだ段を2つに分ける）</span></button><button data-act="shareShelf">🔗 URLで送る</button>${c.linked?`<button data-act="gotoPlan">間取りで見る</button>`:`<button data-act="placeShelf">🏠 間取りに置く</button>`}`:'';
   $('mhint').innerHTML='段をタップで段の設定 ／ ⇕をドラッグで棚板を上下 ／ 2本指：拡大縮小';
   $('phint').innerHTML='正面図：左右と段を決める（物の上に乗せると重ね置き）／ 上から見た図：手前と奥を決める ／ 段をクリックで選択 ／ 矢印キー：←→左右、↑↓奥・手前 ／ R：向きを変える ／ Delete：削除';
 }
@@ -834,6 +852,28 @@ function renderShelfPanel(){
   panel.innerHTML=h+checkHtml();
 }
 
+/* ---------- 候補を今の間取り・棚に置く ---------- */
+let pickKind='furn';
+function placeCandPlan(x){
+  if(!x.w||!x.d){note('幅と奥行きを入れてから置いてください。（候補リストの「編集」で入れられます）');return false}
+  const [px,py]=center(x.w,x.d),f={id:uid(),name:x.name,w:x.w,d:x.d,h:x.h||0,color:COLORS[cnt()%COLORS.length],x:px,y:py,rot:0};
+  plan().furniture.push(f);sel={k:'f',id:f.id};lvOpen=false;return true;
+}
+function placeCandShelf(x){
+  const c=shelfCtx();if(!c){note('棚がまだありません。');return false}
+  if(!x.w||!x.d||!x.h){note('幅・奥行き・高さを入れてから置いてください。（候補リストの「編集」で入れられます）');return false}
+  addShelfItem(c,UI.level,{name:x.name,w:x.w,d:x.d,h:x.h});return true;
+}
+function renderPicker(){
+  const inShelf=UI.mode==='shelf',c=inShelf?shelfCtx():null;
+  $('pickTtl').textContent=inShelf?`候補から置く → ${c?c.holder.name+'・'+lvName(c,UI.level):''}`:`候補から置く → ${room().name}／${plan().name}`;
+  $('pickChips').innerHTML=[['furn','家具'],['small','かご・小物'],['all','すべて']].map(([k,v])=>`<button class="chip ${pickKind===k?'on':''}" data-act="pickKind" data-k="${k}">${v}</button>`).join(' ');
+  const L=S.cands.filter(x=>x.status!=='skip'&&(pickKind==='all'||x.kind===pickKind)).sort((a,b)=>(b.at||0)-(a.at||0));
+  $('pickList').innerHTML=L.length?L.map(x=>{const ph=x.photo&&PHOTOS[x.photo],ok=inShelf?(x.w&&x.d&&x.h):(x.w&&x.d);
+    return `<div class="prow ${ok?'':'dim'}" data-act="pickCand" data-id="${x.id}"><div class="ph">${ph?`<img src="${esc(ph)}" alt="">`:'写真なし'}</div><div><div class="nm">${esc(x.name)}<span class="badge ${SB[x.status]||''}">${STAT[x.status]||''}</span></div><div class="mt">${x.w||'?'}×${x.d||'?'}×H${x.h||'?'}${x.store?'　'+esc(x.store):''}${ok?'':'　（寸法が足りません）'}</div></div></div>`}).join('')
+    :`<div class="note" style="padding:10px">${S.cands.length?'この種類の候補はありません。上の「すべて」で他の種類も見られます。':'候補がまだありません。「候補リスト」画面の「＋記録する」で記録できます。'}</div>`;
+}
+
 /* ---------- 候補リスト ---------- */
 const KIND={furn:'家具',small:'かご・小物'},STAT={cand:'候補',buy:'購入済み',skip:'見送り'},SB={cand:'b-cand',buy:'b-buy',skip:'b-skip'};
 function renderCands(){
@@ -853,10 +893,11 @@ function renderCands(){
     <div class="note">寸法はmmです。</div></div>`;
   }
   const L=S.cands.filter(x=>UI.cfilter==='all'||x.status===UI.cfilter).sort((a,b)=>(b.at||0)-(a.at||0));
+  const planDest=`${room().name}／${plan().name}`,sc=shelfCtx(),shDest=sc?`${sc.holder.name}・${lvName(sc,UI.level)}`:'';
   h+=L.length?`<div class="cards">${L.map(x=>{const ph=x.photo&&PHOTOS[x.photo];
     return `<div class="card"><div class="ph">${ph?`<img src="${esc(ph)}" alt="">`:'写真なし'}</div><div class="bd"><div class="nm">${esc(x.name)}<span class="badge ${SB[x.status]||''}">${STAT[x.status]||''}</span></div>
     <div class="mt">${KIND[x.kind]||''}　${x.w||'?'}×${x.d||'?'}×H${x.h||'?'}${x.price?`<br>¥${Number(x.price).toLocaleString()}`:''}${x.store?`　${esc(x.store)}`:''}${x.memo?`<br>${esc(x.memo)}`:''}</div>
-    <div class="btns"><button data-act="candToPlan" data-id="${x.id}">間取りに置く</button><button data-act="candToShelf" data-id="${x.id}">棚に置く</button><button data-act="candEditBtn" data-id="${x.id}">編集</button><button data-act="shareCand" data-id="${x.id}">🔗 送る</button></div></div></div>`}).join('')}</div>`
+    <div class="btns"><button data-act="candToPlan" data-id="${x.id}" class="${x.w&&x.d?'':'dim'}">▶ ${esc(planDest)}に置く</button>${shDest?`<button data-act="candToShelf" data-id="${x.id}" class="${x.w&&x.d&&x.h?'':'dim'}">▶ ${esc(shDest)}に置く</button>`:`<button data-act="candToShelf" data-id="${x.id}" class="dim">棚に置く（棚がありません）</button>`}<button data-act="candEditBtn" data-id="${x.id}">編集</button><button data-act="shareCand" data-id="${x.id}">🔗 送る</button></div></div></div>`}).join('')}</div>`
     :`<div class="note">${S.cands.length?'この条件の候補はありません。':'お店で見つけた家具やかごを「＋記録する」で残しておけます。寸法を入れておけば、そのまま間取りや棚に置いて確かめられます。'}</div>`;
   v.innerHTML=h;
 }
@@ -1039,6 +1080,7 @@ function delSel(){
 }
 document.addEventListener('keydown',e=>{
   if(!$('dlg').hidden)return;
+  if(!$('pick').hidden){if(e.key==='Escape')$('pick').hidden=true;return}
   const tag=(e.target.tagName||'').toLowerCase();
   if(tag==='input'||tag==='select'||tag==='textarea')return;
   const k=e.key.toLowerCase();
@@ -1089,7 +1131,7 @@ document.addEventListener('change',e=>{
 const cnt=()=>plan().furniture.length;
 function center(w,d){const r=room();return [Math.max(0,s10((r.w-w)/2)),Math.max(0,s10((r.d-d)/2))]}
 function addFix(o){o.id=uid();room().fixtures.push(o);sel={k:o.type==='obstacle'?'o':'x',id:o.id};commit()}
-function setMode(m){UI.mode=m;sel=null;lvOpen=false;if(m!=='cand')candEdit=null;render();if(m!=='cand')requestAnimationFrame(fit)}
+function setMode(m){UI.mode=m;sel=null;lvOpen=false;$('pick').hidden=true;if(m!=='cand')candEdit=null;render();if(m!=='cand')requestAnimationFrame(fit)}
 function addShelfItem(c,li,o){
   const g=SG(c),lv=c.sh.levels[li];
   let x=0;lv.items.filter(q=>!q.on).forEach(q=>{x=Math.max(x,q.x+q.w)});if(x+o.w>g.iw)x=0;
@@ -1195,20 +1237,20 @@ const ACTS={
   async candDel(){if(!await confirmBox(`「${candEdit.name}」を削除しますか？`))return;S.cands=S.cands.filter(c=>c.id!==candEdit.id);candEdit=null;commit()},
   candToPlan(el){
     const x=S.cands.find(c=>c.id===el.dataset.id);if(!x)return;
-    if(!x.w||!x.d){note('幅と奥行きを入れてから置いてください。');return}
-    const [px,py]=center(x.w,x.d),f={id:uid(),name:x.name,w:x.w,d:x.d,h:x.h||0,color:COLORS[cnt()%COLORS.length],x:px,y:py,rot:0};
-    plan().furniture.push(f);UI.mode='plan';sel={k:'f',id:f.id};commit();requestAnimationFrame(fit);
-    note(`「${room().name}」の「${plan().name}」に置きました。\n別の部屋や配置案に置きたいときは、先に間取りでその部屋・案を開いてから押してください。`);
+    if(!placeCandPlan(x))return;UI.mode='plan';commit();requestAnimationFrame(fit);
   },
-  async candToShelf(el){
+  candToShelf(el){
     const x=S.cands.find(c=>c.id===el.dataset.id);if(!x)return;
-    if(!x.w||!x.d||!x.h){note('幅・奥行き・高さを入れてから置いてください。');return}
-    const L=shelfList();if(!L.length){note('棚がまだありません。「棚」画面で先に棚を作ってください。');return}
-    let c=shelfCtx();
-    if(L.length>1){const i=await choose(`「${x.name}」をどの棚に置きますか？`,L.map(q=>q.label));if(i===null)return;c=L[i];UI.shelfRef=c.ref;UI.level=c.sh.levels.length-1}
-    const li=await choose('どの段に置きますか？',c.sh.levels.map((_,i)=>lvName(c,i)).reverse());if(li===null)return;
-    addShelfItem(c,c.sh.levels.length-1-li,{name:x.name,w:x.w,d:x.d,h:x.h});
-    UI.mode='shelf';commit();requestAnimationFrame(fit);
+    if(!shelfCtx()){note('棚がまだありません。「棚」画面で先に棚を作ってください。');return}
+    if(!placeCandShelf(x))return;UI.mode='shelf';commit();requestAnimationFrame(fit);
+  },
+  openPicker(){pickKind=UI.mode==='shelf'?'small':'furn';renderPicker();$('pick').hidden=false},
+  pickClose(){$('pick').hidden=true},
+  pickKind(el){pickKind=el.dataset.k;renderPicker()},
+  pickCand(el){
+    const x=S.cands.find(c=>c.id===el.dataset.id);if(!x)return;
+    const ok=UI.mode==='shelf'?placeCandShelf(x):placeCandPlan(x);if(!ok)return;
+    $('pick').hidden=true;commit();
   },
 };
 document.addEventListener('click',e=>{const el=e.target.closest('[data-act]');if(!el)return;if(el.tagName==='A')e.preventDefault();const f=ACTS[el.dataset.act];if(f)f(el)});
@@ -1340,6 +1382,7 @@ async function receiveFromHash(){
   note('このURLは読み込めませんでした。');
 }
 window.addEventListener('hashchange',receiveFromHash);
+$('pick').addEventListener('click',e=>{if(e.target.id==='pick')$('pick').hidden=true});
 
 /* ---------- QRコード（外部の部品を使わない自前の処理） ---------- */
 const QR=(()=>{
